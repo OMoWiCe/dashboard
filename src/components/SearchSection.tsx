@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
-import { Button, Input } from "@mui/material";
-import { Search, RefreshCw } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Box, TextField, Button, MenuItem } from '@mui/material';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import SearchIcon from '@mui/icons-material/Search';
 
-export default function SearchSection() {
-  const [searchQuery, setSearchQuery] = useState("");
+function SearchSection() {
+  const [searchQuery, setSearchQuery] = useState('');
   const [refreshDisabled, setRefreshDisabled] = useState(false);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState(1);
 
@@ -22,42 +23,40 @@ export default function SearchSection() {
   }, [autoRefreshInterval]);
 
   const refreshData = () => {
-    console.log("Data refreshed");
+    console.log('Data refreshed');
   };
 
   const handleSearch = () => {
-    console.log("Search for:", searchQuery);
+    console.log(`Searching for ${searchQuery}`);
   };
 
   return (
-    <div className="flex items-center space-x-2 mb-4">
-      <Input
-        placeholder="Search location"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
+    <Box display="flex" justifyContent="center" alignItems="center" gap={2} p={2}>
+      <TextField 
+        label="Search location" 
+        variant="outlined" 
+        value={searchQuery} 
+        onChange={(e) => setSearchQuery(e.target.value)} 
+        InputProps={{ endAdornment: <SearchIcon /> }} 
       />
-      <Button onClick={handleSearch}>
-        <Search />
+      <Button variant="contained" onClick={handleSearch}>Search</Button>
+      <Button variant="contained" onClick={() => { refreshData(); setRefreshDisabled(true); }} disabled={refreshDisabled}>
+        <RefreshIcon /> {refreshDisabled ? 'Disabled' : 'Refresh Now'}
       </Button>
-      <Button
-        onClick={() => {
-          refreshData();
-          setRefreshDisabled(true);
-        }}
-        disabled={refreshDisabled}
-      >
-        <RefreshCw /> {refreshDisabled ? "Disabled" : "Refresh Now"}
-      </Button>
-      <select
-        className="p-2 rounded bg-gray-800 text-white"
+      <TextField
+        select
+        label="Auto Refresh"
         value={autoRefreshInterval}
         onChange={(e) => setAutoRefreshInterval(Number(e.target.value))}
+        variant="outlined"
       >
-        <option value={1}>1 min</option>
-        <option value={5}>5 min</option>
-        <option value={15}>15 min</option>
-        <option value={60}>1 hr</option>
-      </select>
-    </div>
+        <MenuItem value={1}>1 min</MenuItem>
+        <MenuItem value={5}>5 min</MenuItem>
+        <MenuItem value={15}>15 min</MenuItem>
+        <MenuItem value={60}>1 hr</MenuItem>
+      </TextField>
+    </Box>
   );
 }
+
+export default SearchSection;
