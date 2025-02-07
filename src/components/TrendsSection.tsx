@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Typography, Card, CardContent } from '@mui/material';
+import { Card, CardContent, Typography, Box } from '@mui/material';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 
 const dummyDailyData = [
@@ -22,10 +22,10 @@ const dummyWeeklyData = [
   { day: 'S', occupancy: 75 },
 ];
 
-function TrendsSection() {
+export default function Trends() {
   return (
-    <Box display="flex" gap={2} p={2}>
-      <Card sx={{ flex: 1, backgroundColor: '#1d1d1d' }}>
+    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 4 }}>
+      <Card sx={{ bgcolor: 'grey.800', color: 'white', border: '1px solid white', flex: 1 }}>
         <CardContent>
           <Typography variant="h6">Daily Trend</Typography>
           <ResponsiveContainer width="100%" height={200}>
@@ -38,7 +38,8 @@ function TrendsSection() {
           </ResponsiveContainer>
         </CardContent>
       </Card>
-      <Card sx={{ flex: 1, backgroundColor: '#1d1d1d' }}>
+
+      <Card sx={{ bgcolor: 'grey.800', color: 'white', border: '1px solid white', flex: 1 }}>
         <CardContent>
           <Typography variant="h6">Weekly Trend</Typography>
           <ResponsiveContainer width="100%" height={200}>
@@ -54,5 +55,3 @@ function TrendsSection() {
     </Box>
   );
 }
-
-export default TrendsSection;

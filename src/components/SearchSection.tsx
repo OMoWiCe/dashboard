@@ -1,54 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { Box, TextField, Button, MenuItem } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import SearchIcon from '@mui/icons-material/Search';
+import React from 'react';
+import { TextField, Button, MenuItem, Box } from '@mui/material';
+import { Search, Refresh } from '@mui/icons-material';
 
-function SearchSection() {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [refreshDisabled, setRefreshDisabled] = useState(false);
-  const [autoRefreshInterval, setAutoRefreshInterval] = useState(1);
+interface SearchBarProps {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  handleSearch: () => void;
+  refreshData: () => void;
+  refreshDisabled: boolean;
+  setRefreshDisabled: (disabled: boolean) => void;
+  autoRefreshInterval: number;
+  setAutoRefreshInterval: (interval: number) => void;
+}
 
-  useEffect(() => {
-    if (refreshDisabled) {
-      const timer = setTimeout(() => setRefreshDisabled(false), 30000);
-      return () => clearTimeout(timer);
-    }
-  }, [refreshDisabled]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refreshData();
-    }, autoRefreshInterval * 60000);
-    return () => clearInterval(interval);
-  }, [autoRefreshInterval]);
-
-  const refreshData = () => {
-    console.log('Data refreshed');
-  };
-
-  const handleSearch = () => {
-    console.log(`Searching for ${searchQuery}`);
+export default function SearchSection({ searchQuery, setSearchQuery, handleSearch, refreshData, refreshDisabled, setRefreshDisabled, autoRefreshInterval, setAutoRefreshInterval }: SearchBarProps) {
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSearch();
   };
 
   return (
-    <Box display="flex" justifyContent="center" alignItems="center" gap={2} p={2}>
-      <TextField 
-        label="Search location" 
-        variant="outlined" 
-        value={searchQuery} 
-        onChange={(e) => setSearchQuery(e.target.value)} 
-        InputProps={{ endAdornment: <SearchIcon /> }} 
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', mb: 4 }}>
+      <TextField
+        label="Search Location"
+        variant="outlined"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        onKeyPress={handleKeyPress}
+        sx={{ bgcolor: 'grey.800', input: { color: 'white' }, flex: 1 }}
       />
-      <Button variant="contained" onClick={handleSearch}>Search</Button>
-      <Button variant="contained" onClick={() => { refreshData(); setRefreshDisabled(true); }} disabled={refreshDisabled}>
-        <RefreshIcon /> {refreshDisabled ? 'Disabled' : 'Refresh Now'}
+      <Button variant="contained" color="primary" onClick={handleSearch}><Search /></Button>
+      <Button variant="contained" color="secondary" onClick={() => { refreshData(); setRefreshDisabled(true); }} disabled={refreshDisabled}>
+        <Refresh /> {refreshDisabled ? 'Disabled' : 'Refresh Now'}
       </Button>
       <TextField
         select
         label="Auto Refresh"
         value={autoRefreshInterval}
         onChange={(e) => setAutoRefreshInterval(Number(e.target.value))}
-        variant="outlined"
+        sx={{ bgcolor: 'grey.800', input: { color: 'white' } }}
       >
         <MenuItem value={1}>1 min</MenuItem>
         <MenuItem value={5}>5 min</MenuItem>
@@ -58,5 +47,3 @@ function SearchSection() {
     </Box>
   );
 }
-
-export default SearchSection;

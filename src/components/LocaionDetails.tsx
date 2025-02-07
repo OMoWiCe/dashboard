@@ -1,28 +1,25 @@
 import React from 'react';
-import { Card, CardContent, Typography, Button } from '@mui/material';
-import LocationOnIcon from '@mui/icons-material/LocationOn';
+import { Card, CardContent, Typography, Button, Box } from '@mui/material';
+import { Room } from '@mui/icons-material';
 
-function LocationDetails() {
-  const location = 'Sample Location';
-  const openHours = '9am - 6pm';
+interface LocationDetailsProps {
+  location: string;
+}
 
+export default function LocationDetails({ location }: LocationDetailsProps) {
   return (
-    <Card sx={{ backgroundColor: '#1d1d1d', m: 2 }}>
+    <Card sx={{ bgcolor: 'grey.800', color: 'white', mb: 4, border: '1px solid white' }}>
       <CardContent>
-        <Typography variant="h5">{location}</Typography>
-        <Typography variant="body2">Open: {openHours}</Typography>
-        <Button 
-          startIcon={<LocationOnIcon />} 
-          onClick={() => window.open(`https://maps.google.com/?q=${location}`, '_blank')} 
-          sx={{ mt: 1 }}
-        >
+        <Typography variant="h5" component="div">{location}</Typography>
+        <Typography sx={{ mb: 1.5 }} color="gray">Open: 9am - 6pm</Typography>
+        <Button variant="outlined" startIcon={<Room />} onClick={() => window.open(`https://maps.google.com/?q=${location}`, '_blank')}>
           View on Map
         </Button>
-        <Typography variant="h6" sx={{ mt: 2 }}>Live Occupancy: 175+</Typography>
-        <Typography variant="h6">Waiting Time: ~15 mins</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 3 }}>
+          <Typography variant="body1">Live Occupancy: <strong>175+</strong></Typography>
+          <Typography variant="body1">Waiting Time: <strong>~15 mins</strong></Typography>
+        </Box>
       </CardContent>
     </Card>
   );
 }
-
-export default LocationDetails;
