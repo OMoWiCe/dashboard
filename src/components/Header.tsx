@@ -1,45 +1,41 @@
-import { useState } from "react";
-import { Button } from "@mui/material";
-import { X } from "lucide-react";
+import React, { useState } from 'react';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 
-export default function Header() {
-  const [showDisclaimer, setShowDisclaimer] = useState(false);
+function Header() {
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
 
   return (
-    <header className="flex justify-between items-center p-4 shadow-md bg-gray-800">
-      <img src="/logo.png" alt="Logo" className="h-10" />
-      <div>
-        <Button onClick={() => setShowDisclaimer(true)}>Disclaimer</Button>
-        <Button
-          onClick={() => window.open("https://documentation.link", "_blank")}
-        >
-          Docs
-        </Button>
-      </div>
-
-      {/* Disclaimer Popup */}
-      {showDisclaimer && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-lg w-full relative">
-            <button
-              className="absolute top-2 right-2 text-white"
-              onClick={() => setShowDisclaimer(false)}
-            >
-              <X />
-            </button>
-            <h2 className="text-2xl font-bold mb-4">Ethical Concerns</h2>
-            <p>
-              Our research adheres to strict ethical guidelines to ensure the
-              privacy and security of all data collected. We prioritize
-              transparency, consent, and the responsible use of information in
-              all our projects.
-            </p>
-            <Button className="mt-4" onClick={() => setShowDisclaimer(false)}>
-              Close
-            </Button>
-          </div>
-        </div>
-      )}
-    </header>
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Dashboard Logo
+        </Typography>
+        <Button color="inherit" onClick={handleOpen}>Disclaimer</Button>
+        <Button color="inherit" href="https://documentation.link" target="_blank">Docs</Button>
+      </Toolbar>
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Ethical Concerns</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Our research adheres to strict ethical guidelines to ensure privacy and security of data. Transparency, consent, and responsible use are our top priorities.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </AppBar>
   );
 }
+
+export default Header;
