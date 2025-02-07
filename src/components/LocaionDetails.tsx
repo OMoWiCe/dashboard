@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@mui/material';
 import { Button } from '@/components/ui/button';
 import { MapPin } from 'lucide-react';
 
