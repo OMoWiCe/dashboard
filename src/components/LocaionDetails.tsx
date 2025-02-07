@@ -1,10 +1,8 @@
-import React from 'react';
-import { Card, CardContent } from '@mui/material';
-import { Button } from '@/components/ui/button';
-import { MapPin } from 'lucide-react';
+import { Button, Card, CardContent } from "@mui/material";
+import { MapPin } from "lucide-react";
 
 export default function LocationDetails() {
-  const location = 'Sample Location';
+  const location = "Sample Location";
 
   return (
     <Card className="bg-gray-800">
@@ -14,7 +12,13 @@ export default function LocationDetails() {
             <h2 className="text-2xl font-bold">{location}</h2>
             <p>Open: 9am - 6pm</p>
           </div>
-          <Button onClick={() => window.open(`https://maps.google.com/?q=${location}`, '_blank')}><MapPin /></Button>
+          <Button
+            onClick={() =>
+              window.open(`https://maps.google.com/?q=${location}`, "_blank")
+            }
+          >
+            <MapPin />
+          </Button>
         </div>
         <div className="flex justify-between items-center mt-4">
           <div>

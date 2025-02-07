@@ -1,9 +1,8 @@
-import React from 'react';
-import Header from './components/Header';
-import SearchSection from './components/SearchSection';
-import LocationDetails from './components/LocaionDetails';
-import TrendsSection from './components/TrendsSection';
-import Footer from './components/Footer';
+import Header from "./components/Header";
+import SearchSection from "./components/SearchSection";
+import LocationDetails from "./components/LocaionDetails";
+import TrendsSection from "./components/TrendsSection";
+import Footer from "./components/Footer";
 
 export default function App() {
   return (
