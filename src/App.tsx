@@ -1,23 +1,35 @@
 import Header from "./components/Header";
-import SearchSection from "./components/SearchSection";
 import LocationDetails from "./components/LocaionDetails";
+import SearchBar from "./components/SearchSection";
 import TrendsSection from "./components/TrendsSection";
 import Footer from "./components/Footer";
 import CssBaseline from '@mui/material/CssBaseline';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 
-export default function App() {
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#121212',
+      paper: '#1d1d1d',
+    },
+    text: {
+      primary: '#ffffff',
+    },
+  },
+});
+
+function App() {
   return (
-    <>
+    <ThemeProvider theme={darkTheme}>
       <CssBaseline />
-      <div className="min-h-screen bg-gray-900 text-white">
-        <Header />
-        <main className="p-4">
-          <SearchSection />
-          <LocationDetails />
-          <TrendsSection />
-        </main>
-        <Footer />
-      </div>
-    </>
+      <Header />
+      <SearchBar />
+      <LocationDetails />
+      <TrendsSection />
+      <Footer />
+    </ThemeProvider>
   );
 }
+
+export default App;
