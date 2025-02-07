@@ -1,36 +1,28 @@
-import { Button, Card, CardContent } from "@mui/material";
-import { MapPin } from "lucide-react";
+import React from 'react';
+import { Card, CardContent, Typography, Button } from '@mui/material';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
 
-export default function LocationDetails() {
-  const location = "Sample Location";
+function LocationDetails() {
+  const location = 'Sample Location';
+  const openHours = '9am - 6pm';
 
   return (
-    <Card className="bg-gray-800">
+    <Card sx={{ backgroundColor: '#1d1d1d', m: 2 }}>
       <CardContent>
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-2xl font-bold">{location}</h2>
-            <p>Open: 9am - 6pm</p>
-          </div>
-          <Button
-            onClick={() =>
-              window.open(`https://maps.google.com/?q=${location}`, "_blank")
-            }
-          >
-            <MapPin />
-          </Button>
-        </div>
-        <div className="flex justify-between items-center mt-4">
-          <div>
-            <p className="text-lg">Live Occupancy</p>
-            <p className="text-3xl font-bold">175+</p>
-          </div>
-          <div>
-            <p className="text-lg">Waiting Time</p>
-            <p className="text-3xl font-bold">~15 mins</p>
-          </div>
-        </div>
+        <Typography variant="h5">{location}</Typography>
+        <Typography variant="body2">Open: {openHours}</Typography>
+        <Button 
+          startIcon={<LocationOnIcon />} 
+          onClick={() => window.open(`https://maps.google.com/?q=${location}`, '_blank')} 
+          sx={{ mt: 1 }}
+        >
+          View on Map
+        </Button>
+        <Typography variant="h6" sx={{ mt: 2 }}>Live Occupancy: 175+</Typography>
+        <Typography variant="h6">Waiting Time: ~15 mins</Typography>
       </CardContent>
     </Card>
   );
 }
+
+export default LocationDetails;
