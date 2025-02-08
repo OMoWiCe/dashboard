@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { AppBar, Toolbar, Button, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
