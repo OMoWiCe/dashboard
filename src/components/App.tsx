@@ -4,6 +4,7 @@ import "../css/theme.css";
 import "../css/Dashboard.css";
 import Navbar from "./Navbar";
 import LocationCard from "./LocationCard";
+import LoadingSkeleton from "./LoadingSkeleton";
 import Disclaimer from "./Disclaimer";
 import Footer from "./Footer";
 
@@ -88,65 +89,100 @@ const mockLocations = [
     lastUpdated: new Date(Date.now() - 120 * 60000), // 120 minutes ago
   },
   {
-    id: 6,
-    name: "Batticaloa Hub",
-    address: "33 Lagoon Road, Batticaloa",
+    id: 7,
+    name: "Matara City Branch",
+    address: "12 Beach Road, Matara",
     openHours: "Monday-Friday: 9:00 AM - 5:00 PM, Saturday: 9:00 AM - 1:00 PM",
-    currentOccupancy: 8,
+    currentOccupancy: 14,
     trend: "up",
-    trendPercentage: 10,
-    waitingTime: "2 min",
+    trendPercentage: 8,
+    waitingTime: "4 min",
     isLive: true,
-    hourlyTrend: [4, 5, 6, 7, 6, 7, 8, 8],
-    lastUpdated: new Date(Date.now() - 120 * 60000), // 120 minutes ago
+    hourlyTrend: [7, 9, 10, 12, 14, 13, 14, 14],
+    lastUpdated: new Date(Date.now() - 130 * 60000), // 130 minutes ago
   },
   {
-    id: 6,
-    name: "Batticaloa Hub",
-    address: "33 Lagoon Road, Batticaloa",
-    openHours: "Monday-Friday: 9:00 AM - 5:00 PM, Saturday: 9:00 AM - 1:00 PM",
-    currentOccupancy: 8,
-    trend: "up",
-    trendPercentage: 10,
-    waitingTime: "2 min",
+    id: 8,
+    name: "Kurunegala Mall",
+    address: "45 Main Street, Kurunegala",
+    openHours: "Monday-Sunday: 9:00 AM - 7:00 PM",
+    currentOccupancy: 26,
+    trend: "down",
+    trendPercentage: 6,
+    waitingTime: "7 min",
     isLive: true,
-    hourlyTrend: [4, 5, 6, 7, 6, 7, 8, 8],
-    lastUpdated: new Date(Date.now() - 120 * 60000), // 120 minutes ago
+    hourlyTrend: [20, 25, 30, 35, 32, 28, 27, 26],
+    lastUpdated: new Date(Date.now() - 140 * 60000), // 140 minutes ago
   },
   {
-    id: 6,
-    name: "Batticaloa Hub",
-    address: "33 Lagoon Road, Batticaloa",
-    openHours: "Monday-Friday: 9:00 AM - 5:00 PM, Saturday: 9:00 AM - 1:00 PM",
-    currentOccupancy: 8,
-    trend: "up",
-    trendPercentage: 10,
-    waitingTime: "2 min",
+    id: 9,
+    name: "Anuradhapura Center",
+    address: "78 Temple Road, Anuradhapura",
+    openHours: "Monday-Friday: 8:30 AM - 4:30 PM",
+    currentOccupancy: 12,
+    trend: "stable",
+    trendPercentage: 2,
+    waitingTime: "3 min",
     isLive: true,
-    hourlyTrend: [4, 5, 6, 7, 6, 7, 8, 8],
-    lastUpdated: new Date(Date.now() - 120 * 60000), // 120 minutes ago
+    hourlyTrend: [12, 11, 13, 12, 13, 11, 12, 12],
+    lastUpdated: new Date(Date.now() - 100 * 60000), // 100 minutes ago
   },
 ];
 
 function App() {
-  const [locations, setLocations] = useState(
-    mockLocations.map((loc) => ({
-      ...loc,
-      lastUpdated: new Date(
-        Date.now() - Math.floor(Math.random() * 120) * 60000
-      ), // Random time within last 2 hours
-    }))
-  );
-  const [filteredLocations, setFilteredLocations] = useState(locations);
+  const [locations, setLocations] = useState([]);
+  const [filteredLocations, setFilteredLocations] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
+    null
+  );
   const [showDisclaimer, setShowDisclaimer] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [lastRefreshTime, setLastRefreshTime] = useState<Date>(new Date());
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
+  const [showNoResults, setShowNoResults] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Filter locations based on search term
+  // Simulate initial API loading on first render
   useEffect(() => {
-    if (searchTerm.trim() === "") {
+    // Simulate API fetch with a random loading time between 1-5 seconds
+    // TODO: Remove this random timeout when connecting to the real API
+    const loadingTime = Math.floor(Math.random() * 4000) + 1000; // 1-5 seconds
+
+    console.log(`Initial data loading (${loadingTime}ms)...`);
+
+    const timer = setTimeout(() => {
+      // Initialize with mock data (will be replaced with API data)
+      const initialData = mockLocations.map((loc) => ({
+        ...loc,
+        lastUpdated: new Date(
+          Date.now() - Math.floor(Math.random() * 120) * 60000
+        ), // Random time within last 2 hours
+      }));
+
+      setLocations(initialData);
+      setFilteredLocations(initialData);
+      setLastRefreshTime(new Date());
+      setIsLoading(false);
+
+      console.log("Initial data loaded");
+    }, loadingTime);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Filter locations based on search term or selected location
+  useEffect(() => {
+    if (!locations.length) return;
+
+    if (selectedLocationId !== null) {
+      const selected = locations.filter(
+        (location) => location.id === selectedLocationId
+      );
+      setFilteredLocations(selected);
+      setShowNoResults(selected.length === 0);
+    } else if (searchTerm.trim() === "") {
       setFilteredLocations(locations);
+      setShowNoResults(false);
     } else {
       const filtered = locations.filter(
         (location) =>
@@ -154,8 +190,9 @@ function App() {
           location.address.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredLocations(filtered);
+      setShowNoResults(filtered.length === 0);
     }
-  }, [searchTerm, locations]);
+  }, [searchTerm, locations, selectedLocationId]);
 
   // This would be replaced with an actual API call in production
   const refreshData = () => {
@@ -194,31 +231,65 @@ function App() {
     }, randomRefreshTime);
   };
 
-  // Format the last refresh time
-  const formatLastRefresh = () => {
-    if (!lastRefreshTime) return "";
-    return `Last refreshed: ${lastRefreshTime.toLocaleTimeString()}`;
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setSelectedLocationId(null);
+  };
+
+  const handleLocationSelect = (locationId: number) => {
+    setSelectedLocationId(locationId);
+    setSearchTerm(""); // Clear the search term when selecting a specific location
+  };
+
+  const handleResetSearch = () => {
+    setSelectedLocationId(null);
+    setSearchTerm("");
+    setFilteredLocations(locations);
+  };
+
+  // Generate loading skeleton placeholders
+  const renderSkeletons = () => {
+    // Show 8 skeleton cards while loading
+    return Array(8)
+      .fill(0)
+      .map((_, index) => <LoadingSkeleton key={`skeleton-${index}`} />);
   };
 
   return (
     <div className={`dashboard ${isRefreshing ? "refreshing" : ""}`}>
       <Navbar
-        onSearch={setSearchTerm}
+        onSearch={handleSearch}
         onRefresh={refreshData}
         onDisclaimerClick={() => setShowDisclaimer(true)}
         isRefreshing={isRefreshing}
+        locations={locations}
+        onLocationSelect={handleLocationSelect}
+        selectedLocationId={selectedLocationId}
+        onResetSearch={handleResetSearch}
       />
 
       <div className="dashboard-content">
-        <div className="refresh-info">{formatLastRefresh()}</div>
-        <div className="location-grid">
-          {filteredLocations.map((location) => (
-            <LocationCard key={location.id} location={location} />
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="loading-container">{renderSkeletons()}</div>
+        ) : showNoResults ? (
+          <div className="no-results-message">
+            <i className="fa fa-search-minus" aria-hidden="true"></i>
+            <div>No results found for "{searchTerm}"</div>
+            <div>
+              Try a different search term or clear the search to see all
+              locations.
+            </div>
+          </div>
+        ) : (
+          <div className="location-grid">
+            {filteredLocations.map((location) => (
+              <LocationCard key={location.id} location={location} />
+            ))}
+          </div>
+        )}
       </div>
 
-      <Footer />
+      <Footer lastRefreshTime={lastRefreshTime} />
 
       {showDisclaimer && (
         <Disclaimer onClose={() => setShowDisclaimer(false)} />

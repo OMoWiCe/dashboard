@@ -5,6 +5,8 @@
   -webkit-backdrop-filter: blur(10px);
   position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 1000;
   padding: 1.25rem 1rem;
   width: 90vw;
@@ -26,6 +28,7 @@
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 250px;
 }
 
 .navbar-logo {
@@ -51,7 +54,8 @@
   display: flex;
   justify-content: center;
   padding: 0 1rem;
-  color: var();
+  position: relative;
+  max-width: 40vw;
 }
 
 .search-container {
@@ -69,6 +73,7 @@
   color: var(--text-gray);
   transition: all var(--transition-fast);
   background-color: var(--bg-light);
+  padding-right: 2.5rem; /* Space for clear button */
 }
 
 .search-input:focus {
@@ -86,11 +91,121 @@
   pointer-events: none;
 }
 
+.clear-icon {
+  position: absolute;
+  right: 3rem; /* Adjusted position to not overlap with search button */
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light-gray);
+  cursor: pointer;
+  font-size: var(--font-base);
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  opacity: 0;
+  transition: all var(--transition-fast);
+}
+
+.clear-icon.visible {
+  opacity: 1;
+}
+
+/* Search animation for loading state */
+.searching .search-icon i {
+  animation: rotate 1s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Search dropdown */
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: var(--bg-light);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px var(--card-shadow);
+  margin-top: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1001;
+  display: none;
+}
+
+.search-dropdown.visible {
+  display: block;
+}
+
+.search-dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border-bottom: 1px solid var(--card-border);
+}
+
+.search-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.search-dropdown-item:hover {
+  background-color: var(--bg-light-gray);
+}
+
+.location-name {
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.location-address {
+  font-size: var(--font-xs);
+  color: var(--text-light-gray);
+  margin-top: 0.25rem;
+}
+
+.search-btn {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 0 50px 50px 0;
+  padding: 0 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.search-btn:hover {
+  background-color: var(--btn-hover);
+}
+
+.no-results {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-light-gray);
+}
+
 /* Right section with refresh buttons */
 .navbar-right {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-width: 250px;
+  width: 17vw;
+  justify-content: flex-end;
 }
 
 .refresh-btn {
@@ -200,6 +315,25 @@
   color: var(--primary-color);
 }
 
+/* Reset search button styles */
+.reset-search-btn {
+  margin-left: 10px;
+  background-color: var(--primary-color);
+  color: var(--text-white);
+  border: none;
+  border-radius: 10px;
+  padding: 6px 12px 5px;
+  font-size: var(--font-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 1px 3px var(--card-shadow);
+}
+
+.reset-search-btn:hover {
+  background-color: var(--text-light-gray);
+  color: white;
+}
+
 /* Responsive styles */
 @media (max-width: 1024px) {
   .navbar-container {
@@ -257,6 +391,17 @@
 
   .navbar-right {
     gap: 0.25rem;
+  }
+
+  .navbar-center {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reset-search-btn {
+    margin-left: 0;
+    margin-top: 10px;
+    justify-content: center;
   }
 }
 

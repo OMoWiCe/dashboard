@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import "../css/Disclaimer.css";
 
 interface DisclaimerProps {
@@ -6,24 +5,6 @@ interface DisclaimerProps {
 }
 
 const Disclaimer = ({ onClose }: DisclaimerProps) => {
-  const [timeLeft, setTimeLeft] = useState(30);
-
-  useEffect(() => {
-    // Keep the countdown timer for informational purposes only
-    const timer = setInterval(() => {
-      setTimeLeft((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-
-    // Clean up timer
-    return () => clearInterval(timer);
-  }, []);
-
   return (
     <div className="overlay">
       <div className="disclaimer-modal">
@@ -46,7 +27,6 @@ const Disclaimer = ({ onClose }: DisclaimerProps) => {
             limitations. The indicators and waiting times are estimates based on
             historical patterns and current occupancy levels.
           </p>
-          <p>This message will automatically close in {timeLeft} seconds.</p>
         </div>
         <button className="disclaimer-btn" onClick={onClose}>
           Close

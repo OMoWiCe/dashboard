@@ -8,6 +8,7 @@
   padding: 1.5rem;
   border: 1px solid var(--card-border);
   transition: all var(--transition-medium);
+  min-width: 350px;
 }
 
 .location-card:hover {

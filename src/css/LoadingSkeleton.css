@@ -1,0 +1,103 @@
+/* Loading Skeleton Styles */
+.skeleton-card {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--card-shadow);
+  padding: 1.5rem;
+  border: 1px solid var(--card-border);
+  position: relative;
+  overflow: hidden;
+  height: 300px;
+  min-width: 350px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Loading container styles */
+.loading-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 25px;
+  gap: 20px;
+}
+
+.skeleton-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 1.5s infinite;
+  transform: translateX(-100%);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Simplified header with just title */
+.skeleton-header {
+  padding-bottom: 1.5rem;
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 70%;
+  background-color: #e2e8f0;
+  border-radius: 6px;
+}
+
+/* Stats section with occupancy and waiting time */
+.skeleton-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.skeleton-occupancy {
+  height: 40px;
+  width: 50%;
+  background-color: #e2e8f0;
+  border-radius: 6px;
+}
+
+.skeleton-waiting-time {
+  width: 80px;
+  height: 60px;
+  background-color: #e2e8f0;
+  border-radius: 8px;
+}
+
+/* Simple chart representation */
+.skeleton-chart {
+  height: 100px;
+  width: 100%;
+  background-color: #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+/* Last updated indicator */
+.skeleton-updated {
+  height: 14px;
+  width: 40%;
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  margin-left: auto;
+}
