@@ -1,0 +1,204 @@
+/* Location Card Component */
+.location-card {
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--card-shadow);
+  padding: 1.5rem;
+  border: 1px solid var(--card-border);
+  transition: all var(--transition-medium);
+}
+
+.location-card:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+  border-color: var(--primary-color);
+}
+
+.location-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.location-info {
+  flex-grow: 1;
+}
+
+.location-title {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  margin: 0 0 0.25rem 0;
+  color: var(--text-dark);
+}
+
+.location-address {
+  font-size: var(--font-sm);
+  color: var(--text-gray);
+  margin: 0;
+}
+
+.location-map-btn {
+  background-color: var(--bg-light-gray);
+  border: none;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  color: var(--text-gray);
+}
+
+.location-map-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.location-hours {
+  font-size: var(--font-xs);
+  color: var(--text-gray);
+  margin-bottom: 1rem;
+}
+
+.location-stats {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.occupancy {
+  flex-grow: 1;
+}
+
+.occupancy-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.occupancy-number {
+  font-size: var(--font-2xl);
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.occupancy-trend {
+  color: var(--text-gray);
+  font-size: var(--font-xs);
+  display: flex;
+  align-items: center;
+}
+
+.trend-up {
+  color: var(--danger-color);
+}
+
+.trend-down {
+  color: var(--success-color);
+}
+
+.occupancy-label {
+  font-size: var(--font-xs);
+  color: var(--text-light-gray);
+  margin-top: 0.25rem;
+}
+
+.waiting-time {
+  background-color: var(--bg-light-gray);
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.waiting-time-value {
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.waiting-time-label {
+  font-size: var(--font-xs);
+  color: var(--text-light-gray);
+}
+
+.trend-charts {
+  margin-top: 1rem;
+}
+
+.trend-title {
+  font-size: var(--font-xs);
+  color: var(--text-light-gray);
+  margin-bottom: 0.5rem;
+}
+
+.trend-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 40px;
+  gap: 3px;
+}
+
+.trend-bar {
+  background-color: var(--primary-color);
+  border-radius: 2px;
+  flex-grow: 1;
+  height: 5px;
+  transition: height var(--transition-medium);
+}
+
+.trend-bar.current {
+  background-color: var(--accent-color);
+}
+
+.trend-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.25rem;
+  font-size: var(--font-xs);
+  color: var(--text-light-gray);
+}
+
+.location-status {
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.status-live {
+  background-color: var(--success-color);
+}
+
+.status-offline {
+  background-color: var(--danger-color);
+}
+
+.status-text {
+  font-size: var(--font-xs);
+  color: var(--text-gray);
+}
+
+.last-updated {
+  margin-top: 0.75rem;
+  text-align: right;
+  font-size: var(--font-xs);
+  color: var(--text-light-gray);
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .location-card {
+    padding: 1rem;
+  }
+}

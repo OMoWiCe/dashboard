@@ -1,0 +1,56 @@
+/* Dashboard theme CSS with color variables */
+
+:root {
+  /* Main Colors */
+  --primary-color: #2563eb;
+  --secondary-color: #f43f5e;
+  --accent-color: #7e22ce;
+
+  /* Background Colors */
+  --bg-light: #ffffff;
+  --bg-off-white: #f8f9fa;
+  --bg-light-gray: #edf2f7;
+  --bg-dark: #111827;
+
+  /* Text Colors */
+  --text-dark: #111827;
+  --text-gray: #374151;
+  --text-light-gray: #6b7280;
+  --text-white: #ffffff;
+
+  /* Card Colors */
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+
+  /* Button Colors */
+  --btn-primary: var(--primary-color);
+  --btn-hover: #1d4ed8;
+  --btn-secondary: var(--secondary-color);
+
+  /* Status Colors */
+  --success-color: #22c55e;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --info-color: #3b82f6;
+
+  /* Font Sizes */
+  --font-xs: 0.75rem; /* 12px */
+  --font-sm: 0.875rem; /* 14px */
+  --font-base: 1rem; /* 16px */
+  --font-md: 1.125rem; /* 18px */
+  --font-lg: 1.25rem; /* 20px */
+  --font-xl: 1.5rem; /* 24px */
+  --font-2xl: 1.75rem; /* 28px */
+  --font-3xl: 2rem; /* 32px */
+  --font-4xl: 2.375rem; /* 38px */
+
+  /* Animation Timing */
+  --transition-slow: 0.5s ease;
+  --transition-medium: 0.3s ease;
+  --transition-fast: 0.2s ease;
+
+  /* Gradients */
+  --gradient-blue: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  --gradient-purple: linear-gradient(135deg, #7e22ce 0%, #6b21a8 100%);
+}
