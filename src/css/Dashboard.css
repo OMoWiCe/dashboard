@@ -102,25 +102,57 @@
   }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 1000px) {
   .location-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
 @media (min-width: 1280px) {
   .location-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1600px) {
+  .location-grid {
     grid-template-columns: repeat(4, 1fr);
   }
 }
 
+/* Improved mobile responsiveness */
 @media (max-width: 768px) {
   .dashboard-content {
-    padding: 80px 15px 100px; /* More bottom padding on mobile */
+    padding: 130px 15px 100px; /* Increased top padding for the stacked navbar */
+    max-width: 90%;
   }
 
   .location-grid {
     margin-bottom: 80px; /* More space for footer on mobile */
+    gap: 15px;
+  }
+
+  .no-results-message {
+    width: 80%;
+    padding: 30px 15px;
+    font-size: var(--font-base);
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-content {
+    padding: 60px 10px 100px; /* Even more top padding for smaller screens */
+    max-width: 95%;
+  }
+
+  .location-grid {
+    gap: 12px;
+    margin-bottom: 0px;
+  }
+
+  .no-results-message {
+    width: 85%;
+    padding: 20px 15px;
   }
 }
 

@@ -48,12 +48,31 @@ const Navbar = ({
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [filteredLocations, setFilteredLocations] = useState(locations);
   const [isSearching, setIsSearching] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchDropdownRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
   const intervalRef = useRef<number | null>(null);
   const searchTimeoutRef = useRef<number | null>(null);
+
+  // Detect mobile screens
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 480);
+    };
+
+    handleResize(); // Initial check
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
 
   // Filter locations based on search input
   useEffect(() => {
@@ -147,17 +166,37 @@ const Navbar = ({
       ) {
         setShowSearchDropdown(false);
       }
+
+      // Handle mobile search
+      if (
+        mobileSearchRef.current &&
+        !mobileSearchRef.current.contains(event.target as Node)
+      ) {
+        setShowMobileSearch(false);
+      }
+
+      // Handle mobile menu - close when clicking outside
+      if (
+        mobileMenuOpen &&
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(event.target as Node) &&
+        !(event.target as Element).classList.contains("mobile-menu-btn") &&
+        !(event.target as Element).closest(".mobile-menu-btn")
+      ) {
+        setMobileMenuOpen(false);
+      }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [mobileMenuOpen]);
 
   const setRefreshInterval = (seconds: number | null) => {
     setAutoRefreshInterval(seconds);
     setShowDropdown(false);
+    setMobileMenuOpen(false);
   };
 
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,6 +207,7 @@ const Navbar = ({
     setSearchValue("");
     onSearch("");
     setShowSearchDropdown(false);
+    setShowMobileSearch(false);
     if (searchInputRef.current) {
       searchInputRef.current.focus();
     }
@@ -187,12 +227,35 @@ const Navbar = ({
     }
     onSearch(searchValue);
     setShowSearchDropdown(false);
+    setShowMobileSearch(false);
   };
 
   const handleLocationSelect = (locationId: number) => {
     onLocationSelect(locationId);
     setShowSearchDropdown(false);
+    setShowMobileSearch(false);
     setSearchValue(""); // Clear search field after selection
+  };
+
+  const handleMobileMenuClick = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+    // Close search if menu is opened
+    if (!mobileMenuOpen) {
+      setShowMobileSearch(false);
+    }
+  };
+
+  const handleMobileSearchClick = () => {
+    setShowMobileSearch(!showMobileSearch);
+    // Close menu if search is opened
+    if (!showMobileSearch) {
+      setMobileMenuOpen(false);
+    }
+  };
+
+  const handleMobileLinkClick = (callback: () => void) => {
+    callback();
+    setMobileMenuOpen(false);
   };
 
   // Format the auto-refresh interval for display
@@ -213,6 +276,286 @@ const Navbar = ({
     return `Auto (${autoRefreshInterval}s)`;
   };
 
+  // Rendered content for the refresh button (mobile-friendly)
+  const renderRefreshButtonContent = () => {
+    if (isRefreshing) {
+      return (
+        <>
+          <i className="fa fa-refresh fa-spin" aria-hidden="true"></i>
+          {!isMobile && <span>Refreshing...</span>}
+        </>
+      );
+    } else if (manualRefreshCooldown) {
+      return (
+        <>
+          <i className="fa fa-refresh" aria-hidden="true"></i>
+          {isMobile ? (
+            <span className="mobile-cooldown">{refreshCooldown}</span>
+          ) : (
+            <span>Wait ({refreshCooldown}s)</span>
+          )}
+        </>
+      );
+    } else {
+      return (
+        <>
+          <i className="fa fa-refresh" aria-hidden="true"></i>
+          {!isMobile && <span>Refresh</span>}
+        </>
+      );
+    }
+  };
+
+  // Mobile view of the navbar
+  if (isMobile) {
+    return (
+      <div className="navbar mobile-navbar">
+        <div className="navbar-container mobile-container">
+          <div className="mobile-navbar-left">
+            <a href="" className="navbar-logo">
+              <img
+                src="/icons/black-fav.png"
+                alt="Logo"
+                className="navbar-logo-img"
+              />
+            </a>
+          </div>
+
+          <div className="mobile-navbar-actions">
+            {/* Search button */}
+            <button
+              className="mobile-search-btn"
+              onClick={handleMobileSearchClick}
+              aria-label="Search"
+            >
+              <i className="fa fa-search" aria-hidden="true"></i>
+            </button>
+
+            {/* Refresh button */}
+            <button
+              className={`mobile-refresh-btn ${
+                manualRefreshCooldown ? "refresh-btn-disabled" : ""
+              } ${isRefreshing ? "refreshing" : ""}`}
+              onClick={handleManualRefresh}
+              disabled={manualRefreshCooldown || isRefreshing}
+              title={
+                manualRefreshCooldown
+                  ? `Refresh available in ${refreshCooldown}s`
+                  : "Refresh data"
+              }
+            >
+              {renderRefreshButtonContent()}
+            </button>
+
+            {/* Hamburger menu button */}
+            <button
+              className="mobile-menu-btn"
+              onClick={handleMobileMenuClick}
+              aria-label="Menu"
+            >
+              <i
+                className={`fa ${mobileMenuOpen ? "fa-times" : "fa-bars"}`}
+                aria-hidden="true"
+              ></i>
+            </button>
+          </div>
+        </div>
+
+        {/* Dark overlay when mobile menu is open */}
+        {mobileMenuOpen && <div className="mobile-menu-overlay"></div>}
+
+        {/* Mobile menu dropdown */}
+        {mobileMenuOpen && (
+          <div className="mobile-menu-dropdown" ref={mobileMenuRef}>
+            <div className="mobile-menu-close">
+              <button
+                className="mobile-close-btn"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+              >
+                <i className="fa fa-times" aria-hidden="true"></i>
+              </button>
+            </div>
+            <a
+              href="/"
+              className="mobile-menu-item"
+              onClick={(e) => {
+                e.preventDefault();
+                handleMobileLinkClick(() => (window.location.href = "/"));
+              }}
+            >
+              <i className="fa fa-tachometer" aria-hidden="true"></i>
+              Dashboard
+            </a>
+            <a
+              href="https://github.com/OMoWiCe/azfunc-api"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mobile-menu-item"
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              <i className="fa fa-code" aria-hidden="true"></i>
+              API Docs
+            </a>
+            <a
+              href="#"
+              className="mobile-menu-item"
+              onClick={(e) => {
+                e.preventDefault();
+                handleMobileLinkClick(onDisclaimerClick);
+              }}
+            >
+              <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
+              Disclaimer
+            </a>
+
+            {/* Auto refresh settings */}
+            <div className="mobile-menu-section">
+              <div className="mobile-menu-section-title">
+                Auto Refresh Settings
+              </div>
+              <div className="refresh-settings">
+                <div
+                  className={`mobile-menu-item refresh-time ${
+                    autoRefreshInterval === null ? "active" : ""
+                  }`}
+                  onClick={() => setRefreshInterval(null)}
+                >
+                  Off
+                </div>
+                <div
+                  className={`mobile-menu-item refresh-time ${
+                    autoRefreshInterval === AUTO_REFRESH_OPTIONS.ONE_MIN
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setRefreshInterval(AUTO_REFRESH_OPTIONS.ONE_MIN)
+                  }
+                >
+                  1 min
+                </div>
+                <div
+                  className={`mobile-menu-item refresh-time ${
+                    autoRefreshInterval === AUTO_REFRESH_OPTIONS.FIVE_MIN
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setRefreshInterval(AUTO_REFRESH_OPTIONS.FIVE_MIN)
+                  }
+                >
+                  5 mins
+                </div>
+                <div
+                  className={`mobile-menu-item refresh-time ${
+                    autoRefreshInterval === AUTO_REFRESH_OPTIONS.TEN_MIN
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setRefreshInterval(AUTO_REFRESH_OPTIONS.TEN_MIN)
+                  }
+                >
+                  10 mins
+                </div>
+                <div
+                  className={`mobile-menu-item refresh-time ${
+                    autoRefreshInterval === AUTO_REFRESH_OPTIONS.THIRTY_MIN
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setRefreshInterval(AUTO_REFRESH_OPTIONS.THIRTY_MIN)
+                  }
+                >
+                  30 mins
+                </div>
+                <div
+                  className={`mobile-menu-item refresh-time ${
+                    autoRefreshInterval === AUTO_REFRESH_OPTIONS.ONE_HOUR
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setRefreshInterval(AUTO_REFRESH_OPTIONS.ONE_HOUR)
+                  }
+                >
+                  1 hour
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Mobile search popup */}
+        {showMobileSearch && (
+          <div className="mobile-search-popup" ref={mobileSearchRef}>
+            <form
+              className={`mobile-search-container ${
+                isSearching ? "searching" : ""
+              }`}
+              onSubmit={handleSearchSubmit}
+            >
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="mobile-search-input"
+                placeholder="Search locations..."
+                value={searchValue}
+                onChange={handleSearchInputChange}
+                autoFocus
+              />
+              <span className="mobile-search-icon">
+                {isSearching ? (
+                  <i
+                    className="fa fa-circle-o-notch fa-spin"
+                    aria-hidden="true"
+                  ></i>
+                ) : (
+                  <i className="fa fa-search" aria-hidden="true"></i>
+                )}
+              </span>
+
+              <span
+                className={`mobile-clear-icon ${searchValue ? "visible" : ""}`}
+                onClick={handleClearSearch}
+              >
+                <i className="fa fa-times" aria-hidden="true"></i>
+              </span>
+            </form>
+
+            {showSearchDropdown && filteredLocations.length > 0 && (
+              <div className="mobile-search-dropdown">
+                {filteredLocations.map((location) => (
+                  <div
+                    key={location.id}
+                    className="mobile-search-dropdown-item"
+                    onClick={() => handleLocationSelect(location.id)}
+                  >
+                    <div className="location-name">{location.name}</div>
+                    <div className="location-address">{location.address}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {showSearchDropdown &&
+              filteredLocations.length === 0 &&
+              searchValue.trim() !== "" && (
+                <div className="mobile-search-dropdown">
+                  <div className="mobile-search-no-results">
+                    No results found
+                  </div>
+                </div>
+              )}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop view remains unchanged
   return (
     <div className="navbar">
       <div className="navbar-container">
@@ -336,12 +679,7 @@ const Navbar = ({
                 : "Refresh data"
             }
           >
-            <i className="fa fa-refresh" aria-hidden="true"></i>
-            {isRefreshing
-              ? "Refreshing..."
-              : manualRefreshCooldown
-              ? `Wait (${refreshCooldown}s)`
-              : "Refresh"}
+            {renderRefreshButtonContent()}
           </button>
 
           <div className="auto-refresh" ref={dropdownRef}>
