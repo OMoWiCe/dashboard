@@ -88,7 +88,7 @@
 /* Mobile close button for expanded card */
 .mobile-close-btn {
   position: absolute;
-  bottom: -20px;
+  bottom: -25px;
   left: 50%;
   transform: translateX(-50%);
   background-color: var(--primary-color);

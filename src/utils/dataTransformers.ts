@@ -50,8 +50,8 @@ export const transformLocationData = (
   const lastUpdatedDate = new Date(data.lastUpdated);
   lastUpdatedDate.setHours(lastUpdatedDate.getHours() - 5);
   lastUpdatedDate.setMinutes(lastUpdatedDate.getMinutes() - 30);
-    // Decide if the location is live if metrics lastupdate is not older than 15 minutes
-  const isLive = (now.getTime() - lastUpdatedDate.getTime()) < 15 * 60 * 1000; // 15 minutes in milliseconds
+    // Decide if the location is live if metrics lastupdate is not older than 5 times of the update interval
+  const isLive = (now.getTime() - lastUpdatedDate.getTime()) < (data.updateInterval * 5 * 60 * 1000);
 
   return {
     id: location.locationId,

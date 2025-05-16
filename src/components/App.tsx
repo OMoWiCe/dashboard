@@ -46,9 +46,7 @@ function App() {
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
   const [showNoResults, setShowNoResults] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Initialize app by checking URL parameters
+  const [error, setError] = useState<string | null>(null); // Initialize app by checking URL parameters
   useEffect(() => {
     const searchParam = getSearchParam();
     const locationId = getLocationIdFromUrl();
@@ -63,6 +61,7 @@ function App() {
 
     // Fetch initial data
     fetchInitialData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch all locations and metrics on initial load
@@ -113,7 +112,6 @@ function App() {
       await fetchLocationDetails(locationId);
     }
   };
-
   // Fetch details for a specific location
   const fetchLocationDetails = async (locationId: string) => {
     if (!locationId) return;
@@ -139,14 +137,8 @@ function App() {
         setExpandedCardId(locationId);
       }
 
-      // Update filtered locations while preserving other cards
-      if (filteredLocations.length > 1) {
-        setFilteredLocations((prev) =>
-          prev.map((card) => (card.id === locationId ? locationCard : card))
-        );
-      } else {
-        setFilteredLocations([locationCard]);
-      }
+      // Only show this specific location card
+      setFilteredLocations([locationCard]);
 
       // Update URL to reflect the selected location
       updateUrlForLocation(locationId);
@@ -239,20 +231,37 @@ function App() {
       setError("Search failed. Please try again.");
       setFilteredLocations(locationCards);
     }
-  };
-
-  // Handle selection of a specific location
+  }; // Handle selection of a specific location
   const handleLocationSelect = (locationId: string) => {
     setSelectedLocationId(locationId);
     setSearchTerm("");
+    setExpandedCardId(locationId); // Set expanded card immediately
+
+    // Immediately show only this location card
+    const selectedCard = locationCards.find((card) => card.id === locationId);
+    if (selectedCard) {
+      setFilteredLocations([selectedCard]);
+    }
+
+    // Update URL immediately
+    updateUrlForLocation(locationId);
+
+    // Then fetch the detailed metrics
     fetchLocationDetails(locationId);
   };
-
   // Handler for when a card is clicked - fetch detailed metrics and expand the card
   const handleCardClick = async (locationId: string) => {
     if (expandedCardId === locationId) {
       // If clicking on already expanded card, collapse it
       setExpandedCardId(null);
+      // Show all locations again
+      setFilteredLocations(
+        searchTerm
+          ? locationCards.filter((card) =>
+              card.name.toLowerCase().includes(searchTerm.toLowerCase())
+            )
+          : locationCards
+      );
       // Just update URL to main dashboard
       updateUrlForLocation(null);
       return;
@@ -260,6 +269,15 @@ function App() {
 
     // Set as expanded immediately for better UX
     setExpandedCardId(locationId);
+
+    // Immediately show only this card for better UX
+    const selectedCard = locationCards.find((card) => card.id === locationId);
+    if (selectedCard) {
+      setFilteredLocations([selectedCard]);
+    }
+
+    // Update URL immediately
+    updateUrlForLocation(locationId);
 
     try {
       // Fetch detailed metrics for this location
@@ -277,13 +295,8 @@ function App() {
           detailedMetrics as DetailedMetrics
         );
 
-        // Update this specific location card with detailed data
-        setFilteredLocations((prev) =>
-          prev.map((card) => (card.id === locationId ? detailedCard : card))
-        );
-
-        // Update URL
-        updateUrlForLocation(locationId);
+        // Update the card with detailed metrics
+        setFilteredLocations([detailedCard]);
       }
     } catch (err) {
       console.error(`Error fetching detailed metrics for ${locationId}:`, err);
@@ -295,15 +308,23 @@ function App() {
   // Handler for closing the expanded card
   const handleCloseCard = () => {
     setExpandedCardId(null);
+    // Show all locations again based on current search term
+    setFilteredLocations(
+      searchTerm
+        ? locationCards.filter((card) =>
+            card.name.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        : locationCards
+    );
     updateUrlForLocation(null);
   };
-
   // Reset search and show all locations
   const handleResetSearch = () => {
     setSelectedLocationId(null);
     setExpandedCardId(null);
     setSearchTerm("");
     setFilteredLocations(locationCards);
+    setShowNoResults(false);
     updateUrlWithSearch(null);
   };
 

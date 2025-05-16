@@ -600,7 +600,7 @@
 .mobile-menu-close {
   display: flex;
   position: fixed;
-  justify-content: flex-end;
+  justify-content: center;
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -609,7 +609,7 @@
   top: 14px;
 }
 
-.mobile-close-btn {
+.mobile-nav-close-btn {
   background: transparent;
   border: none;
   color: var(--text-gray);
@@ -624,7 +624,7 @@
   transition: background-color var(--transition-fast);
 }
 
-.mobile-close-btn:hover {
+.mobile-nav-close-btn:hover {
   background-color: var(--bg-light-gray);
   color: var(--primary-color);
 }

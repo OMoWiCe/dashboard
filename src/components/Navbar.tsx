@@ -341,7 +341,7 @@ const Navbar = ({
           <div className="mobile-menu-dropdown" ref={mobileMenuRef}>
             <div className="mobile-menu-close">
               <button
-                className="mobile-close-btn"
+                className="mobile-nav-close-btn"
                 onClick={() => setMobileMenuOpen(false)}
                 aria-label="Close menu"
               >
