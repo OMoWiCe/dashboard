@@ -9,10 +9,13 @@
   border: 1px solid var(--card-border);
   transition: all var(--transition-medium);
   min-width: 350px;
+  max-width: 375px;
   cursor: pointer;
   position: relative;
   /* Add top border for status indication */
   border-top: 4px solid var(--card-border);
+  display: flex;
+  flex-direction: column;
 }
 
 /* Live status top border styling */
@@ -33,6 +36,7 @@
 .location-card.expanded {
   grid-column: 1 / -1;
   width: 500px;
+  max-width: 500px;
   margin: 0 auto;
   cursor: default;
   transform: none;
@@ -86,30 +90,35 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 1rem;
+  flex-grow: 1;
 }
 
 .location-info {
+  display: flex;
+  flex-direction: column;
   flex-grow: 1;
+  height: 100%;
 }
 .location-top {
   display: flex;
   justify-content: space-between;
-  align-items: top;
   margin-bottom: 1rem;
+  flex-grow: 1;
+}
+.location-top-left {
+  width: 80%;
 }
 .location-title {
   font-size: var(--font-lg);
   font-weight: 600;
   margin: 0 0 0.5rem 0;
   color: var(--text-dark);
-  margin-right: 15px;
 }
 
 .location-address {
   font-size: var(--font-sm);
   color: var(--text-gray);
   margin: 0;
-  margin-right: 15px;
 }
 
 .location-map-btn {
@@ -131,22 +140,28 @@
   background-color: var(--primary-color);
   color: white;
 }
-
+.location-activity {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-direction: row;
+  flex-grow: 0;
+}
 .location-hours {
   font-size: var(--font-xs);
   color: var(--text-gray);
-  margin-bottom: 0.5rem;
-  display: flex;
-  justify-content: space-between;
+  text-wrap: pretty;
+  width: 70%;
 }
 
 .location-stats {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   border-top: 1px solid var(--card-border);
-  padding-top: 1.25rem;
+  padding-top: 1.75rem;
+  flex-grow: 0;
 }
 
 .occupancy {
@@ -168,6 +183,12 @@
 }
 
 .occupancy-trend {
+  color: var(--text-lighter-gray);
+  font-size: var(--font-xs);
+  display: flex;
+  align-items: center;
+}
+.waiting-time-trend {
   color: var(--text-lighter-gray);
   font-size: var(--font-xs);
   display: flex;
@@ -214,13 +235,6 @@
   margin: 0;
 }
 
-.waiting-time-trend {
-  color: var(--text-lighter-gray);
-  font-size: var(--font-xs);
-  display: flex;
-  align-items: center;
-}
-
 .waiting-time-label {
   font-size: var(--font-xs);
   color: var(--text-light-gray);
@@ -230,12 +244,13 @@
 
 .trend-charts {
   margin-top: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
   padding: 1rem;
   border-radius: 15px;
   border: 1px solid var(--card-border);
   animation: fadeIn 0.5s ease-out;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.3s ease, height 0.3s ease;
+  min-height: 220px; /* Ensures consistent height even during refresh */
 }
 
 @keyframes fadeIn {
@@ -384,6 +399,7 @@
   align-items: center;
   font-size: var(--font-xs);
   color: var(--text-light-gray);
+  flex-grow: 0;
 }
 
 .update-interval {

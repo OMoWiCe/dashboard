@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react";
 import "../css/App.css";
 import "../css/theme.css";
@@ -98,8 +99,8 @@ function App() {
 
   // Handle URL parameters after data is loaded
   const handleUrlParameters = async (
-    locations: Location[],
-    metrics: Metrics[]
+    _locations: Location[],
+    _metrics: Metrics[]
   ) => {
     const searchParam = getSearchParam();
     const locationId = getLocationIdFromUrl();
@@ -216,7 +217,7 @@ function App() {
 
       if (searchResults && searchResults.length > 0) {
         // Map search results to our location cards format
-        const filteredCards = searchResults.map((location) => {
+        const filteredCards = searchResults.map((location: Location) => {
           // Find matching metrics
           const metrics = allMetrics.find(
             (m) => m.locationId === location.locationId

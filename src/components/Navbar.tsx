@@ -529,7 +529,7 @@ const Navbar = ({
     <div className="navbar">
       <div className="navbar-container">
         <div className="navbar-left">
-          <a href="" target="_blank" className="navbar-logo">
+          <a href="" className="navbar-logo">
             <img
               src="/icons/black-fav.png"
               alt="Logo"

@@ -7,6 +7,7 @@ interface LocationProps {
   onCardClick: (locationId: string) => void;
   isExpanded: boolean;
   onClose?: () => void;
+  id?: string; // Added to support the id prop coming from App.tsx
 }
 
 const LocationCard = ({
@@ -14,9 +15,10 @@ const LocationCard = ({
   onCardClick,
   isExpanded,
   onClose,
+  id,
 }: LocationProps) => {
   const {
-    id,
+    id: locationId,
     name,
     address,
     googleMapsUrl,
@@ -80,7 +82,7 @@ const LocationCard = ({
       return;
     }
 
-    onCardClick(id);
+    onCardClick(locationId);
   };
 
   // Split the hourly trend into two rows of 12 hours each
@@ -104,7 +106,7 @@ const LocationCard = ({
         isLive ? "live" : "offline"
       }`}
       onClick={handleCardClick}
-      id={`card-${id}`}
+      id={id || `card-${locationId}`}
     >
       {isExpanded && (
         <button
@@ -123,7 +125,7 @@ const LocationCard = ({
       <div className="location-header">
         <div className="location-info">
           <div className="location-top">
-            <div>
+            <div className="location-top-left">
               <h3 className="location-title">{name}</h3>
               <p className="location-address">{address}</p>
             </div>
@@ -138,9 +140,8 @@ const LocationCard = ({
               <i className="fa fa-map-marker"></i>
             </a>
           </div>
-
-          <div className="location-hours">
-            {openHours}
+          <div className="location-activity">
+            <div className="location-hours">{openHours}</div>
             <div className="location-status">
               <span
                 className={`status-indicator ${
