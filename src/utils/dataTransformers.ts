@@ -46,7 +46,6 @@ export const transformLocationData = (
 
   // Convert now time to +5:30 GMT (India Standard Time) to match the lastUpdated time
   const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-  console.log(now);
   // Converting lastUpdated to -5:30 GMT (India Standard Time) to match the now time
   const lastUpdatedDate = new Date(data.lastUpdated);
   lastUpdatedDate.setHours(lastUpdatedDate.getHours() - 5);
