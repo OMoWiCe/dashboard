@@ -123,8 +123,8 @@
 /* Improved mobile responsiveness */
 @media (max-width: 768px) {
   .dashboard-content {
-    padding: 130px 15px 100px; /* Increased top padding for the stacked navbar */
-    max-width: 90%;
+    padding: 130px 15px 50px; /* Increased top padding for the stacked navbar */
+    max-width: 100%;
   }
 
   .location-grid {
@@ -141,8 +141,8 @@
 
 @media (max-width: 480px) {
   .dashboard-content {
-    padding: 60px 10px 100px; /* Even more top padding for smaller screens */
-    max-width: 95%;
+    padding: 60px 40px 50px; /* Even more top padding for smaller screens */
+    max-width: 100%;
   }
 
   .location-grid {

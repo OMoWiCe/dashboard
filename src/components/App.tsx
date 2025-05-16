@@ -152,7 +152,6 @@ function App() {
       }
     }
   };
-
   // Refresh all data
   const refreshData = async () => {
     setIsRefreshing(true);
@@ -169,8 +168,39 @@ function App() {
 
       // Update filtered locations if needed
       if (selectedLocationId) {
-        // If a specific location is selected, fetch its latest details
-        await fetchLocationDetails(selectedLocationId);
+        // If a specific location is selected, fetch its latest detailed metrics
+        try {
+          // Preserve the expanded state during refresh
+          setExpandedCardId(selectedLocationId);
+
+          // Fetch detailed metrics for this location
+          const detailedMetrics = await api.getLocationMetrics(
+            selectedLocationId
+          );
+
+          // Find the location details
+          const location = allLocations.find(
+            (loc) => loc.locationId === selectedLocationId
+          );
+
+          if (location && detailedMetrics) {
+            // Transform into our app format with detailed metrics
+            const detailedCard = transformLocationData(
+              location,
+              detailedMetrics as DetailedMetrics
+            );
+
+            // Make sure we only show this location card
+            setFilteredLocations([detailedCard]);
+          }
+        } catch (error) {
+          console.error(
+            `Error refreshing details for location ${selectedLocationId}:`,
+            error
+          );
+          // Fallback to basic fetch if detailed fetch fails
+          await fetchLocationDetails(selectedLocationId);
+        }
       } else if (searchTerm) {
         // If search is active, update filtered results
         handleSearch(searchTerm);
@@ -187,7 +217,6 @@ function App() {
       setIsRefreshing(false);
     }
   };
-
   // Handle search functionality
   const handleSearch = async (term: string) => {
     setSearchTerm(term);
@@ -248,12 +277,12 @@ function App() {
 
     // Then fetch the detailed metrics
     fetchLocationDetails(locationId);
-  };
-  // Handler for when a card is clicked - fetch detailed metrics and expand the card
+  }; // Handler for when a card is clicked - fetch detailed metrics and expand the card
   const handleCardClick = async (locationId: string) => {
     if (expandedCardId === locationId) {
       // If clicking on already expanded card, collapse it
       setExpandedCardId(null);
+      setSelectedLocationId(null);
       // Show all locations again
       setFilteredLocations(
         searchTerm
@@ -269,6 +298,7 @@ function App() {
 
     // Set as expanded immediately for better UX
     setExpandedCardId(locationId);
+    setSelectedLocationId(locationId);
 
     // Immediately show only this card for better UX
     const selectedCard = locationCards.find((card) => card.id === locationId);
@@ -304,10 +334,10 @@ function App() {
       // Just log the error and keep the card expanded with existing data
     }
   };
-
   // Handler for closing the expanded card
   const handleCloseCard = () => {
     setExpandedCardId(null);
+    setSelectedLocationId(null);
     // Show all locations again based on current search term
     setFilteredLocations(
       searchTerm
