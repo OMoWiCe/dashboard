@@ -84,10 +84,12 @@ const LocationCard = ({
 
     onCardClick(locationId);
   };
-
   // Split the hourly trend into two rows of 12 hours each
   const firstHalfTrend = hourlyTrend ? hourlyTrend.slice(0, 12) : [];
   const secondHalfTrend = hourlyTrend ? hourlyTrend.slice(12, 24) : [];
+
+  // Get current hour (0-23) to highlight the current hour bar
+  const currentHour = new Date().getHours();
 
   // Format hour for tooltip display
   const formatHour = (hour: number) => {
@@ -108,20 +110,33 @@ const LocationCard = ({
       onClick={handleCardClick}
       id={id || `card-${locationId}`}
     >
+      {" "}
       {isExpanded && (
-        <button
-          className="close-expanded-card"
-          onClick={(e) => {
-            e.stopPropagation();
-            // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-            onClose && onClose();
-          }}
-          aria-label="Close expanded card"
-        >
-          <i className="fa fa-times"></i>
-        </button>
+        <>
+          <button
+            className="close-expanded-card"
+            onClick={(e) => {
+              e.stopPropagation();
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+              onClose && onClose();
+            }}
+            aria-label="Close expanded card"
+          >
+            <i className="fa fa-times"></i>
+          </button>
+          <button
+            className="mobile-close-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+              onClose && onClose();
+            }}
+            aria-label="Close expanded card on mobile"
+          >
+            <i className="fa fa-chevron-up"></i>
+          </button>
+        </>
       )}
-
       <div className="location-header">
         <div className="location-info">
           <div className="location-top">
@@ -155,7 +170,6 @@ const LocationCard = ({
           </div>
         </div>
       </div>
-
       <div className="location-stats">
         <div className="occupancy">
           <div className="occupancy-count">
@@ -205,19 +219,19 @@ const LocationCard = ({
           </div>
         </div>
       </div>
-
       {/* Trend chart is only shown when card is expanded */}
       {isExpanded && hourlyTrend && hourlyTrend.length > 0 && (
         <div className="trend-charts" ref={trendChartRef}>
-          <div className="trend-title">Occupancy Trend (Last 24 Hours)</div>
-
+          <div className="trend-title">Occupancy Trend (Last 24 Hours)</div>{" "}
           {/* First row: Hours 0-11 (12am-11am) */}
           <div className="trend-row">
             <div className="trend-bars">
               {firstHalfTrend.map((value, index) => (
                 <div
                   key={`first-${index}`}
-                  className="trend-bar"
+                  className={`trend-bar ${
+                    currentHour === index ? "current" : ""
+                  }`}
                   style={{
                     height: `${(value / maxTrend) * 100}%`,
                   }}
@@ -233,7 +247,6 @@ const LocationCard = ({
               <span>11:00</span>
             </div>
           </div>
-
           {/* Second row: Hours 12-23 (12pm-11pm) */}
           <div className="trend-row">
             <div className="trend-bars">
@@ -241,7 +254,7 @@ const LocationCard = ({
                 <div
                   key={`second-${index}`}
                   className={`trend-bar ${
-                    index + 12 === hourlyTrend.length - 1 ? "current" : ""
+                    currentHour === index + 12 ? "current" : ""
                   }`}
                   style={{
                     height: `${(value / maxTrend) * 100}%`,
@@ -262,7 +275,6 @@ const LocationCard = ({
           </div>
         </div>
       )}
-
       <div className="card-footer">
         <div className="update-interval">
           {/* add (s) if more than 1 */}
@@ -270,7 +282,6 @@ const LocationCard = ({
         </div>
         <div className="last-updated">Last updated: {formatLastUpdated()}</div>
       </div>
-
       {!isExpanded && (
         <div className="card-click-hint">
           <i className="fa fa-info-circle"></i> Click for Details

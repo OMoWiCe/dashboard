@@ -85,6 +85,26 @@
   color: white;
 }
 
+/* Mobile close button for expanded card */
+.mobile-close-btn {
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
 .location-header {
   display: flex;
   justify-content: space-between;
@@ -298,6 +318,8 @@
 
 .trend-bar.current {
   background-color: var(--accent-color);
+  position: relative;
+  z-index: 1;
 }
 
 /* Enhanced tooltip styling */
@@ -450,5 +472,9 @@
 @media (max-width: 480px) {
   .close-expanded-card {
     display: none;
+  }
+
+  .mobile-close-btn {
+    display: flex;
   }
 }
