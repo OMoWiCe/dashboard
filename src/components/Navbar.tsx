@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import "../css/Navbar.css";
+import type { Location } from "../types/api";
 
-// Auto-refresh options - easier to modify later
 const AUTO_REFRESH_OPTIONS = {
   ONE_MIN: 60,
   FIVE_MIN: 300,
@@ -10,7 +10,6 @@ const AUTO_REFRESH_OPTIONS = {
   ONE_HOUR: 3600,
 };
 
-// Default auto-refresh interval (1 minute)
 const DEFAULT_AUTO_REFRESH = AUTO_REFRESH_OPTIONS.ONE_MIN;
 
 interface NavbarProps {
@@ -18,13 +17,9 @@ interface NavbarProps {
   onRefresh: () => void;
   onDisclaimerClick: () => void;
   isRefreshing?: boolean;
-  locations: Array<{
-    id: number;
-    name: string;
-    address: string;
-  }>;
-  onLocationSelect: (locationId: number) => void;
-  selectedLocationId: number | null;
+  locations: Location[];
+  onLocationSelect: (locationId: string) => void;
+  selectedLocationId: string | null;
   onResetSearch: () => void;
 }
 
@@ -46,7 +41,7 @@ const Navbar = ({
   const [manualRefreshCooldown, setManualRefreshCooldown] = useState(false);
   const [refreshCooldown, setRefreshCooldown] = useState(0);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const [filteredLocations, setFilteredLocations] = useState(locations);
+  const [filteredLocations, setFilteredLocations] = useState<Location[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -60,13 +55,12 @@ const Navbar = ({
   const intervalRef = useRef<number | null>(null);
   const searchTimeoutRef = useRef<number | null>(null);
 
-  // Detect mobile screens
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 480);
     };
 
-    handleResize(); // Initial check
+    handleResize();
     window.addEventListener("resize", handleResize);
 
     return () => {
@@ -74,7 +68,6 @@ const Navbar = ({
     };
   }, []);
 
-  // Filter locations based on search input
   useEffect(() => {
     if (searchValue.trim() === "") {
       setFilteredLocations([]);
@@ -82,15 +75,12 @@ const Navbar = ({
       return;
     }
 
-    // Clear any existing timeout
     if (searchTimeoutRef.current) {
       window.clearTimeout(searchTimeoutRef.current);
     }
 
-    // Show loading animation
     setIsSearching(true);
 
-    // Simulate API delay
     searchTimeoutRef.current = window.setTimeout(() => {
       const filtered = locations.filter(
         (location) =>
@@ -100,10 +90,9 @@ const Navbar = ({
       setFilteredLocations(filtered);
       setShowSearchDropdown(true);
       setIsSearching(false);
-    }, 300); // Simulate a short delay for the search animation
+    }, 300);
   }, [searchValue, locations]);
 
-  // Handle auto-refresh interval changes
   useEffect(() => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -112,7 +101,6 @@ const Navbar = ({
 
     if (autoRefreshInterval) {
       intervalRef.current = window.setInterval(() => {
-        // Auto-refresh should not trigger the cooldown
         onRefresh();
       }, autoRefreshInterval * 1000);
     }
@@ -124,7 +112,6 @@ const Navbar = ({
     };
   }, [autoRefreshInterval, onRefresh]);
 
-  // Handle refresh cooldown timer
   useEffect(() => {
     let timer: number | null = null;
 
@@ -146,10 +133,8 @@ const Navbar = ({
     };
   }, [refreshCooldown]);
 
-  // Handle clicks outside dropdowns
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Handle auto-refresh dropdown
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
@@ -157,7 +142,6 @@ const Navbar = ({
         setShowDropdown(false);
       }
 
-      // Handle search dropdown
       if (
         searchDropdownRef.current &&
         !searchDropdownRef.current.contains(event.target as Node) &&
@@ -167,7 +151,6 @@ const Navbar = ({
         setShowSearchDropdown(false);
       }
 
-      // Handle mobile search
       if (
         mobileSearchRef.current &&
         !mobileSearchRef.current.contains(event.target as Node)
@@ -175,7 +158,6 @@ const Navbar = ({
         setShowMobileSearch(false);
       }
 
-      // Handle mobile menu - close when clicking outside
       if (
         mobileMenuOpen &&
         mobileMenuRef.current &&
@@ -230,16 +212,15 @@ const Navbar = ({
     setShowMobileSearch(false);
   };
 
-  const handleLocationSelect = (locationId: number) => {
+  const handleLocationSelect = (locationId: string) => {
     onLocationSelect(locationId);
     setShowSearchDropdown(false);
     setShowMobileSearch(false);
-    setSearchValue(""); // Clear search field after selection
+    setSearchValue("");
   };
 
   const handleMobileMenuClick = () => {
     setMobileMenuOpen(!mobileMenuOpen);
-    // Close search if menu is opened
     if (!mobileMenuOpen) {
       setShowMobileSearch(false);
     }
@@ -247,7 +228,6 @@ const Navbar = ({
 
   const handleMobileSearchClick = () => {
     setShowMobileSearch(!showMobileSearch);
-    // Close menu if search is opened
     if (!showMobileSearch) {
       setMobileMenuOpen(false);
     }
@@ -258,7 +238,6 @@ const Navbar = ({
     setMobileMenuOpen(false);
   };
 
-  // Format the auto-refresh interval for display
   const formatAutoRefreshDisplay = () => {
     if (!autoRefreshInterval) return "Auto refresh";
 
@@ -276,7 +255,6 @@ const Navbar = ({
     return `Auto (${autoRefreshInterval}s)`;
   };
 
-  // Rendered content for the refresh button (mobile-friendly)
   const renderRefreshButtonContent = () => {
     if (isRefreshing) {
       return (
@@ -306,7 +284,6 @@ const Navbar = ({
     }
   };
 
-  // Mobile view of the navbar
   if (isMobile) {
     return (
       <div className="navbar mobile-navbar">
@@ -322,7 +299,6 @@ const Navbar = ({
           </div>
 
           <div className="mobile-navbar-actions">
-            {/* Search button */}
             <button
               className="mobile-search-btn"
               onClick={handleMobileSearchClick}
@@ -331,7 +307,6 @@ const Navbar = ({
               <i className="fa fa-search" aria-hidden="true"></i>
             </button>
 
-            {/* Refresh button */}
             <button
               className={`mobile-refresh-btn ${
                 manualRefreshCooldown ? "refresh-btn-disabled" : ""
@@ -347,7 +322,6 @@ const Navbar = ({
               {renderRefreshButtonContent()}
             </button>
 
-            {/* Hamburger menu button */}
             <button
               className="mobile-menu-btn"
               onClick={handleMobileMenuClick}
@@ -361,10 +335,8 @@ const Navbar = ({
           </div>
         </div>
 
-        {/* Dark overlay when mobile menu is open */}
         {mobileMenuOpen && <div className="mobile-menu-overlay"></div>}
 
-        {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
           <div className="mobile-menu-dropdown" ref={mobileMenuRef}>
             <div className="mobile-menu-close">
@@ -409,7 +381,6 @@ const Navbar = ({
               Disclaimer
             </a>
 
-            {/* Auto refresh settings */}
             <div className="mobile-menu-section">
               <div className="mobile-menu-section-title">
                 Auto Refresh Settings
@@ -488,7 +459,6 @@ const Navbar = ({
           </div>
         )}
 
-        {/* Mobile search popup */}
         {showMobileSearch && (
           <div className="mobile-search-popup" ref={mobileSearchRef}>
             <form
@@ -529,9 +499,9 @@ const Navbar = ({
               <div className="mobile-search-dropdown">
                 {filteredLocations.map((location) => (
                   <div
-                    key={location.id}
+                    key={location.locationId}
                     className="mobile-search-dropdown-item"
-                    onClick={() => handleLocationSelect(location.id)}
+                    onClick={() => handleLocationSelect(location.locationId)}
                   >
                     <div className="location-name">{location.name}</div>
                     <div className="location-address">{location.address}</div>
@@ -555,7 +525,6 @@ const Navbar = ({
     );
   }
 
-  // Desktop view remains unchanged
   return (
     <div className="navbar">
       <div className="navbar-container">
@@ -643,9 +612,9 @@ const Navbar = ({
               >
                 {filteredLocations.map((location) => (
                   <div
-                    key={location.id}
+                    key={location.locationId}
                     className="search-dropdown-item"
-                    onClick={() => handleLocationSelect(location.id)}
+                    onClick={() => handleLocationSelect(location.locationId)}
                   >
                     <div className="location-name">{location.name}</div>
                     <div className="location-address">{location.address}</div>

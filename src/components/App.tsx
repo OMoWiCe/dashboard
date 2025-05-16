@@ -7,253 +7,321 @@ import LocationCard from "./LocationCard";
 import LoadingSkeleton from "./LoadingSkeleton";
 import Disclaimer from "./Disclaimer";
 import Footer from "./Footer";
-
-// Mock data for testing, will be replaced with API data later
-const mockLocations = [
-  {
-    id: 1,
-    name: "Colombo Main Branch",
-    address: "123 Galle Road, Colombo 03",
-    openHours: "Monday-Friday: 8:30 AM - 5:00 PM, Saturday: 9:00 AM - 1:00 PM",
-    currentOccupancy: 32,
-    trend: "up",
-    trendPercentage: 15,
-    waitingTime: "12 min",
-    isLive: true,
-    hourlyTrend: [20, 25, 30, 28, 32, 35, 40, 32],
-    lastUpdated: new Date(Date.now() - 15 * 60000), // 15 minutes ago
-  },
-  {
-    id: 2,
-    name: "Kandy City Center",
-    address: "45 Dalada Veediya, Kandy",
-    openHours: "Monday-Friday: 9:00 AM - 5:30 PM, Saturday: 9:00 AM - 2:00 PM",
-    currentOccupancy: 18,
-    trend: "down",
-    trendPercentage: 8,
-    waitingTime: "5 min",
-    isLive: true,
-    hourlyTrend: [25, 30, 28, 20, 18, 15, 12, 18],
-    lastUpdated: new Date(Date.now() - 30 * 60000), // 30 minutes ago
-  },
-  {
-    id: 3,
-    name: "Galle Fort Branch",
-    address: "78 Church Street, Fort, Galle",
-    openHours: "Monday-Friday: 9:00 AM - 4:30 PM",
-    currentOccupancy: 10,
-    trend: "stable",
-    trendPercentage: 0,
-    waitingTime: "3 min",
-    isLive: true,
-    hourlyTrend: [8, 9, 12, 15, 14, 10, 9, 10],
-    lastUpdated: new Date(Date.now() - 45 * 60000), // 45 minutes ago
-  },
-  {
-    id: 4,
-    name: "Negombo Beach Branch",
-    address: "24 Lewis Place, Negombo",
-    openHours: "Monday-Saturday: 8:30 AM - 6:00 PM",
-    currentOccupancy: 22,
-    trend: "up",
-    trendPercentage: 12,
-    waitingTime: "8 min",
-    isLive: true,
-    hourlyTrend: [10, 15, 18, 20, 18, 20, 24, 22],
-    lastUpdated: new Date(Date.now() - 60 * 60000), // 60 minutes ago
-  },
-  {
-    id: 5,
-    name: "Jaffna Main Center",
-    address: "56 Hospital Road, Jaffna",
-    openHours: "Monday-Friday: 9:00 AM - 5:00 PM",
-    currentOccupancy: 15,
-    trend: "down",
-    trendPercentage: 5,
-    waitingTime: "4 min",
-    isLive: false, // This location is offline
-    hourlyTrend: [18, 20, 22, 20, 16, 15, 14, 15],
-    lastUpdated: new Date(Date.now() - 90 * 60000), // 90 minutes ago
-  },
-  {
-    id: 6,
-    name: "Batticaloa Hub",
-    address: "33 Lagoon Road, Batticaloa",
-    openHours: "Monday-Friday: 9:00 AM - 5:00 PM, Saturday: 9:00 AM - 1:00 PM",
-    currentOccupancy: 8,
-    trend: "up",
-    trendPercentage: 10,
-    waitingTime: "2 min",
-    isLive: true,
-    hourlyTrend: [4, 5, 6, 7, 6, 7, 8, 8],
-    lastUpdated: new Date(Date.now() - 120 * 60000), // 120 minutes ago
-  },
-  {
-    id: 7,
-    name: "Matara City Branch",
-    address: "12 Beach Road, Matara",
-    openHours: "Monday-Friday: 9:00 AM - 5:00 PM, Saturday: 9:00 AM - 1:00 PM",
-    currentOccupancy: 14,
-    trend: "up",
-    trendPercentage: 8,
-    waitingTime: "4 min",
-    isLive: true,
-    hourlyTrend: [7, 9, 10, 12, 14, 13, 14, 14],
-    lastUpdated: new Date(Date.now() - 130 * 60000), // 130 minutes ago
-  },
-  {
-    id: 8,
-    name: "Kurunegala Mall",
-    address: "45 Main Street, Kurunegala",
-    openHours: "Monday-Sunday: 9:00 AM - 7:00 PM",
-    currentOccupancy: 26,
-    trend: "down",
-    trendPercentage: 6,
-    waitingTime: "7 min",
-    isLive: true,
-    hourlyTrend: [20, 25, 30, 35, 32, 28, 27, 26],
-    lastUpdated: new Date(Date.now() - 140 * 60000), // 140 minutes ago
-  },
-  {
-    id: 9,
-    name: "Anuradhapura Center",
-    address: "78 Temple Road, Anuradhapura",
-    openHours: "Monday-Friday: 8:30 AM - 4:30 PM",
-    currentOccupancy: 12,
-    trend: "stable",
-    trendPercentage: 2,
-    waitingTime: "3 min",
-    isLive: true,
-    hourlyTrend: [12, 11, 13, 12, 13, 11, 12, 12],
-    lastUpdated: new Date(Date.now() - 100 * 60000), // 100 minutes ago
-  },
-];
+import { api } from "../utils/api";
+import type {
+  Location,
+  Metrics,
+  DetailedMetrics,
+  LocationWithMetrics,
+} from "../types/api";
+import {
+  transformLocationData,
+  combineLocationsWithMetrics,
+} from "../utils/dataTransformers";
+import {
+  getSearchParam,
+  getLocationIdFromUrl,
+  updateUrlWithSearch,
+  updateUrlForLocation,
+} from "../utils/urlParams";
 
 function App() {
-  const [locations, setLocations] = useState([]);
-  const [filteredLocations, setFilteredLocations] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedLocationId, setSelectedLocationId] = useState<number | null>(
+  // State management for locations and metrics
+  const [allLocations, setAllLocations] = useState<Location[]>([]);
+  const [allMetrics, setAllMetrics] = useState<Metrics[]>([]);
+  const [locationCards, setLocationCards] = useState<LocationWithMetrics[]>([]);
+  const [filteredLocations, setFilteredLocations] = useState<
+    LocationWithMetrics[]
+  >([]);
+
+  // UI state
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [selectedLocationId, setSelectedLocationId] = useState<string | null>(
     null
   );
-  const [showDisclaimer, setShowDisclaimer] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null);
+  const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
-  const [showNoResults, setShowNoResults] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [showNoResults, setShowNoResults] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Simulate initial API loading on first render
+  // Initialize app by checking URL parameters
   useEffect(() => {
-    // Simulate API fetch with a random loading time between 1-5 seconds
-    // TODO: Remove this random timeout when connecting to the real API
-    const loadingTime = Math.floor(Math.random() * 4000) + 1000; // 1-5 seconds
+    const searchParam = getSearchParam();
+    const locationId = getLocationIdFromUrl();
 
-    console.log(`Initial data loading (${loadingTime}ms)...`);
+    if (searchParam) {
+      setSearchTerm(searchParam);
+    } else if (locationId) {
+      setSelectedLocationId(locationId);
+      // Also set it as the expanded card
+      setExpandedCardId(locationId);
+    }
 
-    const timer = setTimeout(() => {
-      // Initialize with mock data (will be replaced with API data)
-      const initialData = mockLocations.map((loc) => ({
-        ...loc,
-        lastUpdated: new Date(
-          Date.now() - Math.floor(Math.random() * 120) * 60000
-        ), // Random time within last 2 hours
-      }));
-
-      setLocations(initialData);
-      setFilteredLocations(initialData);
-      setLastRefreshTime(new Date());
-      setIsLoading(false);
-
-      console.log("Initial data loaded");
-    }, loadingTime);
-
-    return () => clearTimeout(timer);
+    // Fetch initial data
+    fetchInitialData();
   }, []);
 
-  // Filter locations based on search term or selected location
-  useEffect(() => {
-    if (!locations.length) return;
+  // Fetch all locations and metrics on initial load
+  const fetchInitialData = async () => {
+    setIsLoading(true);
+    setError(null);
 
-    if (selectedLocationId !== null) {
-      const selected = locations.filter(
-        (location) => location.id === selectedLocationId
-      );
-      setFilteredLocations(selected);
-      setShowNoResults(selected.length === 0);
-    } else if (searchTerm.trim() === "") {
-      setFilteredLocations(locations);
-      setShowNoResults(false);
-    } else {
-      const filtered = locations.filter(
-        (location) =>
-          location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          location.address.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredLocations(filtered);
-      setShowNoResults(filtered.length === 0);
-    }
-  }, [searchTerm, locations, selectedLocationId]);
+    try {
+      // Fetch both locations and metrics in parallel
+      const [locations, metrics] = await Promise.all([
+        api.getAllLocations(),
+        api.getAllMetrics(),
+      ]);
 
-  // This would be replaced with an actual API call in production
-  const refreshData = () => {
-    console.log("Refreshing data...");
-    setIsRefreshing(true);
+      setAllLocations(locations);
+      setAllMetrics(metrics);
 
-    // TEMPORARY FOR TESTING: Random refresh time between 0.5 and 3 seconds
-    // TODO: Remove this when connecting to real API
-    const randomRefreshTime = Math.floor(Math.random() * 2500) + 500; // 0.5 to 3 seconds
+      // Combine data into location cards
+      const combinedData = combineLocationsWithMetrics(locations, metrics);
+      setLocationCards(combinedData);
+      setFilteredLocations(combinedData);
 
-    setTimeout(() => {
-      // Simulate updated data by slightly changing the occupancy numbers
-      const updatedLocations = locations.map((location) => {
-        // Extract just the number from the waiting time string
-        const waitingMinutes = parseInt(
-          location.waitingTime.replace(/[^0-9]/g, "")
-        );
+      // Check if we need to handle a specific location or search
+      handleUrlParameters(locations, metrics);
 
-        return {
-          ...location,
-          currentOccupancy: Math.max(
-            1,
-            Math.floor(location.currentOccupancy * (0.9 + Math.random() * 0.2))
-          ),
-          waitingTime: `${Math.max(
-            1,
-            Math.floor(waitingMinutes * (0.9 + Math.random() * 0.2))
-          )} min`,
-          lastUpdated: new Date(), // Update the timestamp
-        };
-      });
-
-      setLocations(updatedLocations);
       setLastRefreshTime(new Date());
-      setIsRefreshing(false);
-    }, randomRefreshTime);
+    } catch (err) {
+      console.error("Error fetching initial data:", err);
+      setError("Failed to load data. Please try again later.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSearch = (term: string) => {
+  // Handle URL parameters after data is loaded
+  const handleUrlParameters = async (
+    locations: Location[],
+    metrics: Metrics[]
+  ) => {
+    const searchParam = getSearchParam();
+    const locationId = getLocationIdFromUrl();
+
+    if (searchParam) {
+      // Handle search from URL
+      handleSearch(searchParam);
+    } else if (locationId) {
+      // Handle direct location access
+      await fetchLocationDetails(locationId);
+    }
+  };
+
+  // Fetch details for a specific location
+  const fetchLocationDetails = async (locationId: string) => {
+    if (!locationId) return;
+
+    try {
+      // Fetch both location details and metrics in parallel
+      const [locationDetails, locationMetrics] = await Promise.all([
+        api.getLocationById(locationId),
+        api.getLocationMetrics(locationId),
+      ]);
+
+      // Transform data into our app format
+      const locationCard = transformLocationData(
+        locationDetails,
+        locationMetrics as DetailedMetrics
+      );
+
+      // Update selected location
+      setSelectedLocationId(locationId);
+
+      // If we have full detailed metrics, set as expanded card
+      if ("todayAvgHourlyOccupancy" in locationMetrics) {
+        setExpandedCardId(locationId);
+      }
+
+      // Update filtered locations while preserving other cards
+      if (filteredLocations.length > 1) {
+        setFilteredLocations((prev) =>
+          prev.map((card) => (card.id === locationId ? locationCard : card))
+        );
+      } else {
+        setFilteredLocations([locationCard]);
+      }
+
+      // Update URL to reflect the selected location
+      updateUrlForLocation(locationId);
+    } catch (err) {
+      console.error(`Error fetching details for location ${locationId}:`, err);
+      setError(`Could not load details for the requested location.`);
+
+      // Reset to all locations if there's an error
+      if (locationCards.length > 0) {
+        setFilteredLocations(locationCards);
+      }
+    }
+  };
+
+  // Refresh all data
+  const refreshData = async () => {
+    setIsRefreshing(true);
+    setError(null);
+
+    try {
+      // Fetch updated metrics for all locations
+      const metrics = await api.getAllMetrics();
+      setAllMetrics(metrics);
+
+      // Update location cards with new metrics
+      const updatedCards = combineLocationsWithMetrics(allLocations, metrics);
+      setLocationCards(updatedCards);
+
+      // Update filtered locations if needed
+      if (selectedLocationId) {
+        // If a specific location is selected, fetch its latest details
+        await fetchLocationDetails(selectedLocationId);
+      } else if (searchTerm) {
+        // If search is active, update filtered results
+        handleSearch(searchTerm);
+      } else {
+        // Otherwise show all updated locations
+        setFilteredLocations(updatedCards);
+      }
+
+      setLastRefreshTime(new Date());
+    } catch (err) {
+      console.error("Error refreshing data:", err);
+      setError("Failed to refresh data. Please try again later.");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Handle search functionality
+  const handleSearch = async (term: string) => {
     setSearchTerm(term);
     setSelectedLocationId(null);
+    setExpandedCardId(null);
+    setError(null);
+
+    if (!term.trim()) {
+      // If search is cleared, show all locations
+      setFilteredLocations(locationCards);
+      setShowNoResults(false);
+      updateUrlWithSearch(null);
+      return;
+    }
+
+    try {
+      // Use search API to find locations
+      const searchResults = await api.searchLocations(term);
+
+      if (searchResults && searchResults.length > 0) {
+        // Map search results to our location cards format
+        const filteredCards = searchResults.map((location) => {
+          // Find matching metrics
+          const metrics = allMetrics.find(
+            (m) => m.locationId === location.locationId
+          );
+          return transformLocationData(location, metrics);
+        });
+
+        setFilteredLocations(filteredCards);
+        setShowNoResults(false);
+      } else {
+        setFilteredLocations([]);
+        setShowNoResults(true);
+      }
+
+      // Update URL to reflect search
+      updateUrlWithSearch(term);
+    } catch (err) {
+      console.error("Error searching locations:", err);
+      setError("Search failed. Please try again.");
+      setFilteredLocations(locationCards);
+    }
   };
 
-  const handleLocationSelect = (locationId: number) => {
+  // Handle selection of a specific location
+  const handleLocationSelect = (locationId: string) => {
     setSelectedLocationId(locationId);
-    setSearchTerm(""); // Clear the search term when selecting a specific location
+    setSearchTerm("");
+    fetchLocationDetails(locationId);
   };
 
+  // Handler for when a card is clicked - fetch detailed metrics and expand the card
+  const handleCardClick = async (locationId: string) => {
+    if (expandedCardId === locationId) {
+      // If clicking on already expanded card, collapse it
+      setExpandedCardId(null);
+      // Just update URL to main dashboard
+      updateUrlForLocation(null);
+      return;
+    }
+
+    // Set as expanded immediately for better UX
+    setExpandedCardId(locationId);
+
+    try {
+      // Fetch detailed metrics for this location
+      const detailedMetrics = await api.getLocationMetrics(locationId);
+
+      // Find the location details
+      const location = allLocations.find(
+        (loc) => loc.locationId === locationId
+      );
+
+      if (location && detailedMetrics) {
+        // Transform into our app format with detailed metrics
+        const detailedCard = transformLocationData(
+          location,
+          detailedMetrics as DetailedMetrics
+        );
+
+        // Update this specific location card with detailed data
+        setFilteredLocations((prev) =>
+          prev.map((card) => (card.id === locationId ? detailedCard : card))
+        );
+
+        // Update URL
+        updateUrlForLocation(locationId);
+      }
+    } catch (err) {
+      console.error(`Error fetching detailed metrics for ${locationId}:`, err);
+      // We don't set an error state here to avoid disrupting the UI
+      // Just log the error and keep the card expanded with existing data
+    }
+  };
+
+  // Handler for closing the expanded card
+  const handleCloseCard = () => {
+    setExpandedCardId(null);
+    updateUrlForLocation(null);
+  };
+
+  // Reset search and show all locations
   const handleResetSearch = () => {
     setSelectedLocationId(null);
+    setExpandedCardId(null);
     setSearchTerm("");
-    setFilteredLocations(locations);
+    setFilteredLocations(locationCards);
+    updateUrlWithSearch(null);
   };
 
   // Generate loading skeleton placeholders
   const renderSkeletons = () => {
-    // Show 8 skeleton cards while loading
     return Array(8)
       .fill(0)
       .map((_, index) => <LoadingSkeleton key={`skeleton-${index}`} />);
   };
+
+  // Scroll to expanded card when it changes
+  useEffect(() => {
+    if (expandedCardId) {
+      const expandedCard = document.getElementById(`card-${expandedCardId}`);
+      if (expandedCard) {
+        expandedCard.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }
+  }, [expandedCardId]);
 
   return (
     <div className={`dashboard ${isRefreshing ? "refreshing" : ""}`}>
@@ -262,7 +330,7 @@ function App() {
         onRefresh={refreshData}
         onDisclaimerClick={() => setShowDisclaimer(true)}
         isRefreshing={isRefreshing}
-        locations={locations}
+        locations={allLocations}
         onLocationSelect={handleLocationSelect}
         selectedLocationId={selectedLocationId}
         onResetSearch={handleResetSearch}
@@ -271,6 +339,14 @@ function App() {
       <div className="dashboard-content">
         {isLoading ? (
           <div className="loading-container">{renderSkeletons()}</div>
+        ) : error ? (
+          <div className="no-results-message">
+            <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
+            <div>{error}</div>
+            <button onClick={refreshData} className="refresh-btn">
+              Try Again
+            </button>
+          </div>
         ) : showNoResults ? (
           <div className="no-results-message">
             <i className="fa fa-search-minus" aria-hidden="true"></i>
@@ -283,7 +359,14 @@ function App() {
         ) : (
           <div className="location-grid">
             {filteredLocations.map((location) => (
-              <LocationCard key={location.id} location={location} />
+              <LocationCard
+                key={location.id}
+                location={location}
+                onCardClick={handleCardClick}
+                isExpanded={location.id === expandedCardId}
+                onClose={handleCloseCard}
+                id={`card-${location.id}`}
+              />
             ))}
           </div>
         )}

@@ -14,7 +14,7 @@
 .dashboard-content {
   flex: 1;
   padding: 80px 20px 80px; /* Added bottom padding for fixed footer */
-  max-width: 90%;
+  max-width: 100%;
   margin: 0 auto;
 }
 

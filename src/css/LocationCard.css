@@ -9,11 +9,76 @@
   border: 1px solid var(--card-border);
   transition: all var(--transition-medium);
   min-width: 350px;
+  cursor: pointer;
+  position: relative;
+  /* Add top border for status indication */
+  border-top: 4px solid var(--card-border);
+}
+
+/* Live status top border styling */
+.location-card.live {
+  border-top-color: var(--success-color);
+}
+
+.location-card.offline {
+  border-top-color: var(--danger-color);
 }
 
 .location-card:hover {
   box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
   border-color: var(--primary-color);
+}
+
+/* Expanded card styling */
+.location-card.expanded {
+  grid-column: 1 / -1;
+  width: 500px;
+  margin: 0 auto;
+  cursor: default;
+  transform: none;
+  animation: expandCard 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes expandCard {
+  from {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.location-card.expanded:hover {
+  transform: none;
+}
+
+/* Close button for expanded card - positioned outside */
+.close-expanded-card {
+  position: absolute;
+  top: 5px;
+  right: -45px;
+  background-color: var(--bg-light);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: all var(--transition-fast);
+  color: var(--text-gray);
+  font-size: var(--font-sm);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.close-expanded-card:hover {
+  background-color: var(--primary-color);
+  color: white;
 }
 
 .location-header {
@@ -26,32 +91,40 @@
 .location-info {
   flex-grow: 1;
 }
-
+.location-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: top;
+  margin-bottom: 1rem;
+}
 .location-title {
   font-size: var(--font-lg);
   font-weight: 600;
-  margin: 0 0 0.25rem 0;
+  margin: 0 0 0.5rem 0;
   color: var(--text-dark);
+  margin-right: 15px;
 }
 
 .location-address {
   font-size: var(--font-sm);
   color: var(--text-gray);
   margin: 0;
+  margin-right: 15px;
 }
 
 .location-map-btn {
   background-color: var(--bg-light-gray);
   border: none;
   border-radius: 8px;
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all var(--transition-fast);
   color: var(--text-gray);
+  z-index: 5;
 }
 
 .location-map-btn:hover {
@@ -62,22 +135,29 @@
 .location-hours {
   font-size: var(--font-xs);
   color: var(--text-gray);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
 }
 
 .location-stats {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 1.5rem;
+  border-top: 1px solid var(--card-border);
+  padding-top: 1.25rem;
 }
 
 .occupancy {
-  flex-grow: 1;
+  width: 40%;
+  text-align: center;
 }
 
 .occupancy-count {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
 }
 
@@ -88,7 +168,7 @@
 }
 
 .occupancy-trend {
-  color: var(--text-gray);
+  color: var(--text-lighter-gray);
   font-size: var(--font-xs);
   display: flex;
   align-items: center;
@@ -108,11 +188,23 @@
   margin-top: 0.25rem;
 }
 
+.waiting-time-container {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+}
 .waiting-time {
   background-color: var(--bg-light-gray);
   padding: 0.75rem 1rem;
   border-radius: 8px;
   text-align: center;
+}
+
+.waiting-time-value-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
 }
 
 .waiting-time-value {
@@ -122,63 +214,158 @@
   margin: 0;
 }
 
+.waiting-time-trend {
+  color: var(--text-lighter-gray);
+  font-size: var(--font-xs);
+  display: flex;
+  align-items: center;
+}
+
 .waiting-time-label {
   font-size: var(--font-xs);
   color: var(--text-light-gray);
+  display: block;
+  margin-top: 0.25rem;
 }
 
 .trend-charts {
-  margin-top: 1rem;
+  margin-top: 1.25rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 15px;
+  border: 1px solid var(--card-border);
+  animation: fadeIn 0.5s ease-out;
+  transition: opacity 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .trend-title {
-  font-size: var(--font-xs);
-  color: var(--text-light-gray);
-  margin-bottom: 0.5rem;
+  font-size: var(--font-sm);
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;
+  font-weight: 500;
+  text-align: center;
+}
+
+/* Row styling for 12-hour trend blocks */
+.trend-row {
+  margin-bottom: 1.5rem;
+}
+
+.trend-row:last-child {
+  margin-bottom: 0;
 }
 
 .trend-bars {
   display: flex;
   align-items: flex-end;
-  height: 40px;
-  gap: 3px;
+  height: 80px; /* Decreased height */
+  gap: 7px;
 }
 
 .trend-bar {
   background-color: var(--primary-color);
-  border-radius: 2px;
   flex-grow: 1;
   height: 5px;
+  outline: 1px solid var(--card-border);
   transition: height var(--transition-medium);
+  position: relative;
+  border-radius: 8px;
 }
 
 .trend-bar.current {
   background-color: var(--accent-color);
 }
 
+/* Enhanced tooltip styling */
+.trend-bar::before {
+  content: attr(data-tooltip);
+  position: absolute;
+  background-color: var(--bg-dark);
+  color: var(--text-white);
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 11px;
+  bottom: calc(100% + 5px);
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  transition: transform 0.2s ease;
+  transform-origin: bottom center;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.trend-bar:hover::before {
+  transform: translateX(-50%) scale(1);
+}
+
+/* Arrow for tooltip */
+.trend-bar::after {
+  content: "";
+  position: absolute;
+  bottom: calc(100% + 1px);
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  transition: transform 0.2s ease;
+  transform-origin: top center;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid rgba(0, 0, 0, 0.75);
+  pointer-events: none;
+}
+
+.trend-bar:hover::after {
+  transform: translateX(-50%) scale(1);
+}
+
 .trend-labels {
   display: flex;
   justify-content: space-between;
-  margin-top: 0.25rem;
+  margin-top: 0.75rem;
   font-size: var(--font-xs);
   color: var(--text-light-gray);
 }
 
 .location-status {
   display: flex;
+  justify-content: right;
   align-items: center;
-  margin-top: 0.25rem;
+  padding-left: 20px;
 }
 
 .status-indicator {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
-  margin-right: 6px;
+  margin-right: 10px;
 }
 
+/* Live status indicator with pulsing animation */
 .status-live {
   background-color: var(--success-color);
+  position: relative;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
 }
 
 .status-offline {
@@ -190,16 +377,62 @@
   color: var(--text-gray);
 }
 
-.last-updated {
-  margin-top: 0.75rem;
-  text-align: right;
+.card-footer {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   font-size: var(--font-xs);
   color: var(--text-light-gray);
+}
+
+.update-interval {
   font-style: italic;
+}
+
+.last-updated {
+  text-align: right;
+  font-style: italic;
+}
+
+.card-click-hint {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--primary-color);
+  color: white;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: var(--font-xs);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.card-click-hint i {
+  margin-right: 5px;
+}
+
+.location-card:hover .card-click-hint {
+  opacity: 1;
 }
 
 @media (max-width: 768px) {
   .location-card {
     padding: 1rem;
+  }
+
+  .location-card.expanded {
+    width: 95%;
+    max-width: none; /* Override for mobile */
+  }
+
+  .trend-bars {
+    height: 70px; /* Even smaller on mobile */
+  }
+}
+
+@media (max-width: 480px) {
+  .close-expanded-card {
+    display: none;
   }
 }
