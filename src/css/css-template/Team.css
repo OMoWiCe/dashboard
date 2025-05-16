@@ -1,0 +1,233 @@
+.team-section {
+  background-color: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: var(--text-dark);
+  padding: 60px 20px;
+  border-radius: 20px;
+  margin: 60px 20px;
+  max-width: 1200px;
+  font-family: "Outfit", sans-serif;
+  position: relative;
+}
+
+.team-heading,
+.team-card {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.team-heading {
+  font-size: var(--font-4xl);
+  font-weight: bold;
+  border-bottom: 2px solid var(--card-border);
+  padding-bottom: 16px;
+  display: inline-block;
+  margin-bottom: 40px;
+  color: var(--text-dark);
+}
+
+.team-heading::after {
+  content: "";
+  position: absolute;
+  width: 60px;
+  height: 4px;
+  background: var(--primary-color);
+  bottom: -3px;
+  left: 0;
+  border-radius: 2px;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+.team-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 20px;
+  width: 85%;
+  text-align: center;
+  box-shadow: 0 5px 20px var(--card-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all var(--transition-medium);
+  border: 1px solid var(--card-border);
+}
+
+.team-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.image-container {
+  position: relative;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  transition: transform var(--transition-medium);
+}
+
+.member-image {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+  transition: transform var(--transition-slow);
+}
+
+.team-card:hover .member-image {
+  transform: scale(1.05);
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 92.5%;
+  display: flex;
+  align-items: end;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity var(--transition-medium);
+}
+
+.team-card:hover .overlay {
+  opacity: 1;
+}
+
+.member-name {
+  font-weight: 600;
+  font-size: var(--font-md);
+  color: var(--text-dark);
+  margin-bottom: 15px;
+  transition: color var(--transition-fast);
+}
+
+.team-card:hover .member-name {
+  color: var(--primary-color);
+}
+
+.member-role {
+  font-size: var(--font-base);
+  color: var(--text-gray);
+  margin-bottom: 5px;
+}
+
+.profile-link {
+  color: white;
+  font-size: var(--font-sm);
+  background-color: var(--primary-color);
+  padding: 8px 16px;
+  border-radius: 50px;
+  text-decoration: none;
+  transition: all var(--transition-medium);
+  display: inline-block;
+  font-weight: 500;
+}
+
+.profile-link:hover {
+  background-color: var(--btn-hover);
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+  color: white;
+}
+
+/* Team card staggered animation */
+.team-card {
+  opacity: 0;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.team-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.team-card:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+.team-card:nth-child(3) {
+  animation-delay: 0.5s;
+}
+
+.team-card:nth-child(4) {
+  animation-delay: 0.7s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes floatEffect {
+  0% {
+    transform: translateY(0) translateX(0);
+  }
+  50% {
+    transform: translateY(-30px) translateX(20px);
+  }
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+}
+
+@media (min-width: 768px) {
+  .team-section {
+    padding: 60px 40px;
+    margin: 60px auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .team-section {
+    padding: 25px 20px;
+  }
+  .team-heading {
+    font-size: var(--font-2xl);
+    margin-bottom: 30px;
+  }
+
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    padding: 10px;
+    margin: -10px;
+    margin-left: -15px;
+  }
+
+  .team-card {
+    padding: 10px;
+    width: 90%;
+    max-width: 90%;
+    margin: 0;
+  }
+
+  .member-image {
+    height: 120px;
+  }
+
+  .member-name {
+    font-size: var(--font-sm);
+  }
+
+  .member-role {
+    font-size: var(--font-xs);
+  }
+  .profile-link {
+    font-size: var(--font-xs);
+  }
+}
