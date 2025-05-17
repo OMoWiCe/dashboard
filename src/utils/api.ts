@@ -11,7 +11,7 @@ const getApiKey = () => {
   const devApiKey = import.meta.env?.VITE_API_KEY || '';
   
   // For production in Azure Static Web Apps
-  const prodApiKey = process.env.VITE_API_KEY || '';
+  const prodApiKey = process.env.VITE_API_KEY || import.meta.env.VITE_API_KEY || '';
   
   const apiKey = isDevelopment() ? devApiKey : prodApiKey;
   
@@ -96,7 +96,6 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
       
       // Try to parse error response if possible
       try {
-        const errorData = await response.json();
         // Only log non-sensitive error information
         console.error('API error response status:', response.status);
         throw new Error(`API error: ${response.status} ${response.statusText}`);

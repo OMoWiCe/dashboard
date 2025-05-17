@@ -23,8 +23,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
-    /* ✅ Added for Vite support */
-    "types": ["vite/client"]
+    /* Added for Vite support */
+    "types": ["vite/client","node"]
   },
   "include": ["src", "vite-env.d.ts"]
 }
