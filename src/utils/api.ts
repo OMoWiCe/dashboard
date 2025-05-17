@@ -4,15 +4,16 @@ const API_BASE_URL = 'https://api.omowice.live/v1';
 // Local proxy URL for development (uses Vite's proxy configuration)
 const DEV_PROXY_URL = '/api/v1';
 
-// Function to get API key from environment variables optimized for Azure Static Web Apps
+// Function to get API key from environment variables for Azure Static Web Apps
 const getApiKey = () => {
-  // Azure Static Web Apps environment variables are accessed via window.__env in production
-  // and via import.meta.env in development (Vite)
+  // For development environment
   // @ts-ignore - Vite specific property
-  const apiKey = (import.meta.env?.VITE_API_KEY || 
-                 // Standard way to access env vars in Azure Static Web Apps
-                 (window as any).__env?.VITE_API_KEY ||
-                 '');
+  const devApiKey = import.meta.env?.VITE_API_KEY || '';
+  
+  // For production in Azure Static Web Apps
+  const prodApiKey = process.env.VITE_API_KEY || '';
+  
+  const apiKey = isDevelopment() ? devApiKey : prodApiKey;
   
   if (!apiKey && !isDevelopment()) {
     console.warn('API Key not found. Authentication may fail.');
@@ -37,7 +38,7 @@ const getBaseUrl = () => {
 const debugApiKeyHeaders = () => {
   const apiKey = getApiKey();
   console.log('API Key available:', !!apiKey);
-  // No longer logging any part of the API key for security reasons
+  // No sensitive info logged for security
 };
 
 // Generic fetch function with API key authentication for Azure API Management
@@ -45,7 +46,8 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
   try {
     const headers = new Headers(options.headers || {});
     const apiKey = getApiKey();
-      // Add API Key in the header for Azure API Management
+    
+    // Add API Key in the header for Azure API Management
     if (apiKey) {
       // Using only API-Key header as requested
       headers.set('API-Key', apiKey);
@@ -56,10 +58,17 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
       headers.append('Content-Type', 'application/json');
     }
     
-    // Log request details in development mode
+    // Log request details in development mode only
     if (isDevelopment()) {
+      // Create a safe copy of headers without exposing the API key
+      const safeHeaders = Object.fromEntries(
+        [...headers.entries()].map(([key, value]) => 
+          key.toLowerCase() === 'api-key' ? [key, '***'] : [key, value]
+        )
+      );
+      
       console.debug('API Request:', `${getBaseUrl()}${endpoint}`, {
-        headers: Object.fromEntries(headers.entries()),
+        headers: safeHeaders,
         hasApiKey: !!apiKey,
       });
     } else {
@@ -82,15 +91,15 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
       console.error('API error details:', {
         status: response.status,
         statusText: response.statusText,
-        url: response.url,
-        headers: Object.fromEntries(response.headers.entries()),
+        url: response.url.replace(/\/v1\/.+/, '/v1/[endpoint]'), // Mask specific endpoint for security
       });
       
       // Try to parse error response if possible
       try {
         const errorData = await response.json();
-        console.error('API error response:', errorData);
-        throw new Error(`API error: ${response.status} ${response.statusText} - ${JSON.stringify(errorData)}`);
+        // Only log non-sensitive error information
+        console.error('API error response status:', response.status);
+        throw new Error(`API error: ${response.status} ${response.statusText}`);
       } catch (e) {
         throw new Error(`API error: ${response.status} ${response.statusText}`);
       }
