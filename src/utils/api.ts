@@ -11,7 +11,7 @@ const getApiKey = () => {
   const devApiKey = import.meta.env?.VITE_API_KEY || '';
   
   // For production in Azure Static Web Apps
-  const prodApiKey = process.env.VITE_API_KEY || import.meta.env.VITE_API_KEY || '';
+  const prodApiKey = import.meta.env.VITE_API_KEY || '';
   
   const apiKey = isDevelopment() ? devApiKey : prodApiKey;
   

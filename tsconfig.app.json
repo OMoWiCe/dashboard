@@ -24,7 +24,7 @@
     "noUncheckedSideEffectImports": true,
 
     /* Added for Vite support */
-    "types": ["vite/client","node"]
+    "types": ["vite/client"]
   },
   "include": ["src", "vite-env.d.ts"]
 }
