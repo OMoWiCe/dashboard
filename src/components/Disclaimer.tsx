@@ -10,23 +10,30 @@ const Disclaimer = ({ onClose }: DisclaimerProps) => {
       <div className="disclaimer-modal">
         <h2 className="disclaimer-title">Disclaimer</h2>
         <div className="disclaimer-content">
-          <p>
-            The occupancy data shown on this dashboard is collected through our
-            sensor network and is provided for informational purposes only.
-            While we strive to provide accurate and up-to-date information, we
-            cannot guarantee the absolute accuracy of the data at all times.
-          </p>
-          <p>
-            Factors such as sensor calibration, network issues, or maintenance
-            activities may temporarily affect data accuracy. Please use this
-            information as a general guide rather than for critical
-            decision-making.
-          </p>
-          <p>
-            By using this dashboard, you acknowledge that you understand these
-            limitations. The indicators and waiting times are estimates based on
-            historical patterns and current occupancy levels.
-          </p>
+          <ul>
+            <li>
+              This system has been developed strictly for academic and research
+              purposes to explore the feasibility of signal-based occupancy
+              monitoring in public environments. It is part of an academic study
+              and is not designed, nor should it be interpreted, as a commercial
+              surveillance or monitoring solution.
+            </li>
+
+            <li>
+              No attempt is made to collect, store, or analyze personal or
+              sensitive information. All data utilized is publicly broadcasted
+              and readily accessible in the radio spectrum. Encrypted
+              communications are not decrypted, intercepted, or processed.
+            </li>
+
+            <li>
+              The methodology strictly follows ethical research practices,
+              prioritizing user privacy and data security at all times. Any
+              findings from this research are intended to inform academic
+              knowledge and technological development, not to infringe upon
+              individual privacy rights.
+            </li>
+          </ul>
         </div>
         <button className="disclaimer-btn" onClick={onClose}>
           Close
