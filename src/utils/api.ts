@@ -6,14 +6,9 @@ const DEV_PROXY_URL = '/api/v1';
 
 // Function to get API key from environment variables for Azure Static Web Apps
 const getApiKey = () => {
-  // For development environment
-  // @ts-ignore - Vite specific property
-  const devApiKey = import.meta.env?.VITE_API_KEY || '';
-  
-  // For production in Azure Static Web Apps
-  const prodApiKey = import.meta.env.VITE_API_KEY || '';
-  
-  const apiKey = isDevelopment() ? devApiKey : prodApiKey;
+  // In Vite, environment variables are embedded at build time
+  // Variables starting with VITE_ are automatically exposed to the client
+  const apiKey = import.meta.env.VITE_API_KEY || '';
   
   if (!apiKey && !isDevelopment()) {
     console.warn('API Key not found. Authentication may fail.');
@@ -36,8 +31,8 @@ const getBaseUrl = () => {
 
 // Debug function to verify API key is being set correctly
 const debugApiKeyHeaders = () => {
-  const apiKey = getApiKey();
-  console.log('API Key available:', !!apiKey);
+  const hasApiKey = !!getApiKey();
+  console.log('API Key configured:', hasApiKey);
   // No sensitive info logged for security
 };
 
@@ -57,25 +52,10 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
     if (!headers.has('Content-Type')) {
       headers.append('Content-Type', 'application/json');
     }
-    
-    // Log request details in development mode only
+      // Log request details in development mode only
     if (isDevelopment()) {
-      // Create a safe copy of headers without exposing the API key
-      const safeHeaders = Object.fromEntries(
-        [...headers.entries()].map(([key, value]) => 
-          key.toLowerCase() === 'api-key' ? [key, '***'] : [key, value]
-        )
-      );
-      
-      console.debug('API Request:', `${getBaseUrl()}${endpoint}`, {
-        headers: safeHeaders,
-        hasApiKey: !!apiKey,
-      });
-    } else {
-      // In production, log minimal debug info
-      console.debug('API Request to:', `${getBaseUrl()}${endpoint}`, {
-        hasApiKey: !!apiKey,
-      });
+      // Only log the endpoint in development, no headers or API key info
+      console.debug('API Request:', `${getBaseUrl()}${endpoint}`);
     }
 
     const response = await fetch(`${getBaseUrl()}${endpoint}`, {
