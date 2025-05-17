@@ -13,7 +13,6 @@ const getApiKey = () => {
   if (!apiKey && !isDevelopment()) {
     console.warn('API Key not found. Authentication may fail.');
   }
-  
   return apiKey;
 };
 
@@ -83,7 +82,6 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
         throw new Error(`API error: ${response.status} ${response.statusText}`);
       }
     }
-
     return await response.json();
   } catch (error) {
     console.error('API fetch error:', error);
