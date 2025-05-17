@@ -6,14 +6,15 @@ const DEV_PROXY_URL = '/api/v1';
 
 // Function to get API key from environment variables with better Azure support
 const getApiKey = () => {
-  // Azure Static Web Apps makes environment variables available through import.meta.env
-  // or sometimes through window.__env or similar runtime variables
+  // Azure Static Web Apps environment variables access patterns
   // @ts-ignore - Vite specific property
   const apiKey = (import.meta.env?.VITE_API_KEY || 
-                 // Try window-level environment variables (sometimes used in Azure Static Web Apps)
-                 (window as any).__env?.VITE_API_KEY || 
-                 // Try process.env for SSR scenarios
-                 (typeof process !== 'undefined' ? process.env.VITE_API_KEY : '') || 
+                 // Try window-level environment variables (Azure Static Web Apps runtime variables)
+                 (window as any).__env?.VITE_API_KEY ||
+                 // Look for Azure-specific environment variable format
+                 (window as any).VITE_API_KEY ||
+                 // Try Azure SWA settings format
+                 (window as any).SETTINGS?.VITE_API_KEY ||
                  '');
   
   if (!apiKey && !isDevelopment()) {
@@ -23,6 +24,7 @@ const getApiKey = () => {
       // @ts-ignore - Vite specific property
       importMetaEnv: import.meta.env ? Object.keys(import.meta.env).filter(k => !k.includes('SECRET')) : 'not available',
       windowEnv: (window as any).__env ? Object.keys((window as any).__env).filter(k => !k.includes('SECRET')) : 'not available',
+      windowSettings: (window as any).SETTINGS ? Object.keys((window as any).SETTINGS).filter(k => !k.includes('SECRET')) : 'not available',
     });
   }
   
@@ -41,6 +43,16 @@ const getBaseUrl = () => {
   return isDevelopment() ? DEV_PROXY_URL : API_BASE_URL;
 };
 
+// Debug function to verify API key is being set correctly
+const debugApiKeyHeaders = () => {
+  const apiKey = getApiKey();
+  console.log('API Key available:', !!apiKey);
+  if (apiKey) {
+    // Only log the first few characters for security
+    console.log('API Key preview:', apiKey.substring(0, 4) + '...');
+  }
+};
+
 // Generic fetch function with API key authentication for Azure API Management
 const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
   try {
@@ -49,9 +61,11 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
     
     // Add API Key in the header expected by Azure API Management
     if (apiKey) {
-      // Add API key in both formats supported by Azure API Management
-      headers.append('API-Key', apiKey);
-      headers.append('Ocp-Apim-Subscription-Key', apiKey);
+      // Azure API Management expects the key in the Ocp-Apim-Subscription-Key header
+      headers.set('Ocp-Apim-Subscription-Key', apiKey);
+      
+      // Also include API-Key for backward compatibility
+      headers.set('API-Key', apiKey);
     }
     
     // Add standard content-type if not specified
@@ -75,8 +89,9 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
     const response = await fetch(`${getBaseUrl()}${endpoint}`, {
       ...options,
       headers,
-      // Include credentials for CORS in Azure
-      credentials: 'include',
+      // For Azure API Management, we should not include credentials as it may interfere with CORS
+      // Only include if specifically required by your API
+      credentials: 'same-origin',
     });
 
     if (!response.ok) {
@@ -107,6 +122,12 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
 
 // API endpoints
 export const api = {
+  // Debug function to check API key
+  verifyApiKey: () => {
+    debugApiKeyHeaders();
+    return { success: true, message: 'Check console for API key details' };
+  },
+  
   // Get all locations
   getAllLocations: () => {
     return fetchWithAuth('/locations');
