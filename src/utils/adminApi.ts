@@ -54,9 +54,7 @@ const fetchWithAdminAuth = async (endpoint: string, options: RequestInit = {}) =
       ...options,
       headers,
       credentials: 'same-origin',
-    });
-
-    if (!response.ok) {
+    });    if (!response.ok) {
       console.error('Admin API error details:', {
         status: response.status,
         statusText: response.statusText,
@@ -66,7 +64,17 @@ const fetchWithAdminAuth = async (endpoint: string, options: RequestInit = {}) =
       throw new Error(`Admin API error: ${response.status} ${response.statusText}`);
     }
 
-    return await response.json();
+    // Check if the response has content before trying to parse it as JSON
+    const contentType = response.headers.get('content-type');
+    if (contentType && contentType.includes('application/json') && response.status !== 204) {
+      // Only parse as JSON if we have JSON content and it's not a 204 No Content response
+      const text = await response.text();
+      // Return empty object for empty responses to prevent JSON parse errors
+      return text ? JSON.parse(text) : {};
+    } else {
+      // For non-JSON responses or empty responses, return a success object
+      return { success: true };
+    }
   } catch (error) {
     console.error('Admin API fetch error:', error);
     throw error;

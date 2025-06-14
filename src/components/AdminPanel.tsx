@@ -7,8 +7,10 @@ import AdminLocationModal from "./AdminLocationModal";
 import LoadingSkeleton from "./LoadingSkeleton";
 import Disclaimer from "./Disclaimer";
 import { adminApi } from "../utils/adminApi";
+import { convertToStandardTimezone } from "../utils/dataTransformers";
 import type { Location } from "../types/api";
 import type { LocationWithStatus } from "../types/admin";
+import { ToastProvider } from "../contexts/ToastContext";
 
 function AdminPanel() {
   // State management
@@ -95,28 +97,33 @@ function AdminPanel() {
           // Find matching metrics to determine status
           const metrics = metricsData.find(
             (m: any) => m.locationId === location.locationId
-          );
-
-          // Determine status based on metrics
+          ); // Determine status based on metrics
           let status: "online" | "offline" = "offline";
-          let lastActive = new Date();
+          let lastActive = new Date(0); // Default to epoch if no data
           let updateInterval = 60;
 
           if (metrics) {
             const now = new Date();
-            const lastUpdated = new Date(metrics.lastUpdated);
-            const diffInMinutes =
-              (now.getTime() - lastUpdated.getTime()) / 60000;
+            // Handle potentially null lastUpdated date
+            if (!metrics.lastUpdated) {
+              status = "offline";
+            } else {
+              const lastUpdated =
+                convertToStandardTimezone(metrics.lastUpdated) || new Date(0);
+              const diffInMinutes =
+                (now.getTime() - lastUpdated.getTime()) / 60000;
 
-            // Consider online if updated within 5 times the update interval
-            status =
-              diffInMinutes < metrics.updateInterval * 5 ? "online" : "offline";
-            lastActive = lastUpdated;
+              // Consider online if updated within 5 times the update interval
+              status =
+                diffInMinutes < metrics.updateInterval * 5
+                  ? "online"
+                  : "offline";
+              lastActive = lastUpdated;
+            }
             updateInterval = metrics.updateInterval;
           } else {
             // Default to some reasonable defaults if no metrics available
             status = "offline";
-            lastActive = new Date(Date.now() - 24 * 60 * 60 * 1000); // 24 hours ago as placeholder
           }
 
           return {
@@ -181,8 +188,10 @@ function AdminPanel() {
     fetchLocations(); // Refresh the list
     handleCloseModal();
   };
-
   const formatLastActive = (date: Date) => {
+    // Check if date is epoch (Jan 1, 1970) which we use to indicate never updated
+    if (date.getTime() === 0) return "Never";
+
     const now = new Date();
     const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
 
@@ -208,143 +217,143 @@ function AdminPanel() {
       .fill(0)
       .map((_, index) => <LoadingSkeleton key={`skeleton-${index}`} />);
   };
-
   return (
-    <div className={`admin-panel ${isRefreshing ? "refreshing" : ""}`}>
-      {" "}
-      <Navbar
-        onSearch={handleSearch}
-        onRefresh={refreshData}
-        onDisclaimerClick={() => setShowDisclaimer(true)}
-        isRefreshing={isRefreshing}
-        locations={locations}
-        onLocationSelect={() => {}} // Not used in admin panel
-        selectedLocationId={null}
-        onResetSearch={() => setSearchTerm("")}
-        isAdminPage={true}
-      />
-      <div className="admin-content">
-        <div className="admin-header">
-          <h1 className="admin-title">Admin Panel</h1>
-          <div className="admin-actions">
-            <button className="add-location-btn" onClick={handleAddLocation}>
-              <i className="fa fa-plus" aria-hidden="true"></i>
-              Add Location
-            </button>
+    <ToastProvider>
+      <div className={`admin-panel ${isRefreshing ? "refreshing" : ""}`}>
+        <Navbar
+          onSearch={handleSearch}
+          onRefresh={refreshData}
+          onDisclaimerClick={() => setShowDisclaimer(true)}
+          isRefreshing={isRefreshing}
+          locations={locations}
+          onLocationSelect={() => {}} // Not used in admin panel
+          selectedLocationId={null}
+          onResetSearch={() => setSearchTerm("")}
+          isAdminPage={true}
+        />
+        <div className="admin-content">
+          <div className="admin-header">
+            <h1 className="admin-title">Admin Panel</h1>
+            <div className="admin-actions">
+              <button className="add-location-btn" onClick={handleAddLocation}>
+                <i className="fa fa-plus" aria-hidden="true"></i>
+                Add Location
+              </button>
+            </div>
           </div>
-        </div>
 
-        {isLoading ? (
-          <div className="loading-container">{renderSkeletons()}</div>
-        ) : error ? (
-          <div className="error-message">
-            <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
-            <div>{error}</div>
-            <button onClick={refreshData} className="refresh-btn">
-              Try Again
-            </button>
-          </div>
-        ) : (
-          <div className="locations-table-container">
-            {filteredLocations.length !== 0 && (
-              <table className="locations-table">
-                <thead>
-                  <tr>
-                    <th onClick={() => handleSort("locationId")}>
-                      ID{" "}
-                      <i
-                        className={`fa ${getSortIcon("locationId")}`}
-                        aria-hidden="true"
-                      ></i>
-                    </th>
-                    <th onClick={() => handleSort("name")}>
-                      Name{" "}
-                      <i
-                        className={`fa ${getSortIcon("name")}`}
-                        aria-hidden="true"
-                      ></i>
-                    </th>
-                    <th onClick={() => handleSort("address")}>
-                      Address{" "}
-                      <i
-                        className={`fa ${getSortIcon("address")}`}
-                        aria-hidden="true"
-                      ></i>
-                    </th>
-                    <th onClick={() => handleSort("status")}>
-                      Status{" "}
-                      <i
-                        className={`fa ${getSortIcon("status")}`}
-                        aria-hidden="true"
-                      ></i>
-                    </th>
-                    <th onClick={() => handleSort("updateInterval")}>
-                      Update Interval{" "}
-                      <i
-                        className={`fa ${getSortIcon("updateInterval")}`}
-                        aria-hidden="true"
-                      ></i>
-                    </th>
-                    <th onClick={() => handleSort("lastActive")}>
-                      Last Updated{" "}
-                      <i
-                        className={`fa ${getSortIcon("lastActive")}`}
-                        aria-hidden="true"
-                      ></i>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredLocations.map((location) => (
-                    <tr
-                      key={location.locationId}
-                      onClick={() => handleRowClick(location)}
-                      className="table-row"
-                    >
-                      <td>{location.locationId}</td>
-                      <td>{location.name}</td>
-                      <td>{location.address}</td>
-                      <td>
-                        <span
-                          className={`status-badge ${
-                            location.status === "online"
-                              ? "status-online"
-                              : "status-offline"
-                          }`}
-                        >
-                          {location.status}
-                        </span>
-                      </td>
-                      <td>{location.updateInterval} min</td>
-                      <td>{formatLastActive(location.lastActive)}</td>
+          {isLoading ? (
+            <div className="loading-container">{renderSkeletons()}</div>
+          ) : error ? (
+            <div className="error-message">
+              <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
+              <div>{error}</div>
+              <button onClick={refreshData} className="refresh-btn">
+                Try Again
+              </button>
+            </div>
+          ) : (
+            <div className="locations-table-container">
+              {filteredLocations.length !== 0 && (
+                <table className="locations-table">
+                  <thead>
+                    <tr>
+                      <th onClick={() => handleSort("locationId")}>
+                        ID{" "}
+                        <i
+                          className={`fa ${getSortIcon("locationId")}`}
+                          aria-hidden="true"
+                        ></i>
+                      </th>
+                      <th onClick={() => handleSort("name")}>
+                        Name{" "}
+                        <i
+                          className={`fa ${getSortIcon("name")}`}
+                          aria-hidden="true"
+                        ></i>
+                      </th>
+                      <th onClick={() => handleSort("address")}>
+                        Address{" "}
+                        <i
+                          className={`fa ${getSortIcon("address")}`}
+                          aria-hidden="true"
+                        ></i>
+                      </th>
+                      <th onClick={() => handleSort("status")}>
+                        Status{" "}
+                        <i
+                          className={`fa ${getSortIcon("status")}`}
+                          aria-hidden="true"
+                        ></i>
+                      </th>
+                      <th onClick={() => handleSort("updateInterval")}>
+                        Update Interval{" "}
+                        <i
+                          className={`fa ${getSortIcon("updateInterval")}`}
+                          aria-hidden="true"
+                        ></i>
+                      </th>
+                      <th onClick={() => handleSort("lastActive")}>
+                        Last Updated{" "}
+                        <i
+                          className={`fa ${getSortIcon("lastActive")}`}
+                          aria-hidden="true"
+                        ></i>
+                      </th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  </thead>
+                  <tbody>
+                    {filteredLocations.map((location) => (
+                      <tr
+                        key={location.locationId}
+                        onClick={() => handleRowClick(location)}
+                        className="table-row"
+                      >
+                        <td>{location.locationId}</td>
+                        <td>{location.name}</td>
+                        <td>{location.address}</td>
+                        <td>
+                          <span
+                            className={`status-badge ${
+                              location.status === "online"
+                                ? "status-online"
+                                : "status-offline"
+                            }`}
+                          >
+                            {location.status}
+                          </span>
+                        </td>
+                        <td>{location.updateInterval} min</td>
+                        <td>{formatLastActive(location.lastActive)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
 
-            {filteredLocations.length === 0 && !isLoading && (
-              <div className="no-results-message">
-                <i className="fa fa-search-minus" aria-hidden="true"></i>
-                <div>No locations found!</div>
-              </div>
-            )}
-          </div>
+              {filteredLocations.length === 0 && !isLoading && (
+                <div className="no-results-message">
+                  <i className="fa fa-search-minus" aria-hidden="true"></i>
+                  <div>No locations found!</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+        <Footer lastRefreshTime={lastRefreshTime} />
+        {showModal && (
+          <AdminLocationModal
+            location={selectedLocation}
+            onClose={handleCloseModal}
+            onSaved={handleLocationSaved}
+            onDeleted={handleLocationDeleted}
+          />
+        )}
+        {showDisclaimer && (
+          <Disclaimer onClose={() => setShowDisclaimer(false)} />
         )}
       </div>
-      <Footer lastRefreshTime={lastRefreshTime} />
-      {showModal && (
-        <AdminLocationModal
-          location={selectedLocation}
-          onClose={handleCloseModal}
-          onSaved={handleLocationSaved}
-          onDeleted={handleLocationDeleted}
-        />
-      )}
-      {showDisclaimer && (
-        <Disclaimer onClose={() => setShowDisclaimer(false)} />
-      )}
-    </div>
+    </ToastProvider>
   );
 }
 

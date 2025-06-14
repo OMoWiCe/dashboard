@@ -6,6 +6,7 @@ import type {
   LocationUpdateRequest,
 } from "../types/admin";
 import { adminApi } from "../utils/adminApi";
+import { useToast } from "../contexts/ToastContext";
 
 interface AdminLocationModalProps {
   location: LocationWithStatus | null; // null means adding new location
@@ -21,6 +22,7 @@ const AdminLocationModal = ({
   onDeleted,
 }: AdminLocationModalProps) => {
   const isEditing = location !== null;
+  const { showToast, showConfirmation } = useToast();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -40,8 +42,7 @@ const AdminLocationModal = ({
 
   // UI state
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   // Initialize form data when location changes
   useEffect(() => {
     if (location) {
@@ -98,11 +99,11 @@ const AdminLocationModal = ({
   };
 
   const validateForm = () => {
+    if (!isEditing && !formData.id.trim()) return "ID is required";
     if (!formData.name.trim()) return "Name is required";
     if (!formData.address.trim()) return "Address is required";
     if (!formData.googleMapsUrl.trim()) return "Google Maps URL is required";
     if (!formData.openingHours.trim()) return "Opening hours are required";
-    if (!isEditing && !formData.id.trim()) return "ID is required";
 
     // Validate parameters
     if (formData.parameters.avgDevicesPerPerson <= 0)
@@ -130,12 +131,11 @@ const AdminLocationModal = ({
 
     const validationError = validateForm();
     if (validationError) {
-      setError(validationError);
+      showToast(validationError, "error");
       return;
     }
 
     setIsLoading(true);
-    setError(null);
 
     try {
       if (isEditing) {
@@ -149,6 +149,10 @@ const AdminLocationModal = ({
         };
 
         await adminApi.updateLocation(formData.id, updateData);
+        showToast(
+          `Location "${formData.name}" successfully updated!`,
+          "success"
+        );
       } else {
         // Add new location
         const createData: LocationCreateRequest = {
@@ -161,34 +165,43 @@ const AdminLocationModal = ({
         };
 
         await adminApi.addLocation(createData);
+        showToast(`Location "${formData.name}" successfully added!`, "success");
       }
 
       onSaved();
     } catch (err) {
       console.error("Error saving location:", err);
-      setError(err instanceof Error ? err.message : "Failed to save location");
+      showToast(
+        err instanceof Error ? err.message : "Failed to save location",
+        "error"
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!location) return;
 
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      await adminApi.deleteLocation(location.locationId);
-      onDeleted();
-    } catch (err) {
-      console.error("Error deleting location:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to delete location"
-      );
-    } finally {
-      setIsLoading(false);
-    }
+    showConfirmation(
+      `Are you sure you want to delete "${location.name}"?`,
+      async () => {
+        setIsLoading(true);
+        try {
+          await adminApi.deleteLocation(location.locationId);
+          showToast(`Location "${location.name}" has been deleted`, "info");
+          onDeleted();
+        } catch (err) {
+          console.error("Error deleting location:", err);
+          showToast(
+            err instanceof Error ? err.message : "Failed to delete location",
+            "error"
+          );
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    );
   };
 
   return (
@@ -348,13 +361,6 @@ const AdminLocationModal = ({
             </div>
           </div>
 
-          {error && (
-            <div className="error-message">
-              <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
-              {error}
-            </div>
-          )}
-
           <div className="modal-actions">
             <div className="primary-actions">
               <button
@@ -386,37 +392,15 @@ const AdminLocationModal = ({
 
             {isEditing && (
               <div className="secondary-actions">
-                {!showDeleteConfirm ? (
-                  <button
-                    type="button"
-                    className="delete-btn"
-                    onClick={() => setShowDeleteConfirm(true)}
-                    disabled={isLoading}
-                  >
-                    <i className="fa fa-trash" aria-hidden="true"></i>
-                    Delete
-                  </button>
-                ) : (
-                  <div className="delete-confirm">
-                    <span>Are you sure?</span>
-                    <button
-                      type="button"
-                      className="delete-confirm-btn"
-                      onClick={handleDelete}
-                      disabled={isLoading}
-                    >
-                      Yes, Delete
-                    </button>
-                    <button
-                      type="button"
-                      className="delete-cancel-btn"
-                      onClick={() => setShowDeleteConfirm(false)}
-                      disabled={isLoading}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                )}
+                <button
+                  type="button"
+                  className="delete-btn"
+                  onClick={handleDelete}
+                  disabled={isLoading}
+                >
+                  <i className="fa fa-trash" aria-hidden="true"></i>
+                  Delete
+                </button>
               </div>
             )}
           </div>

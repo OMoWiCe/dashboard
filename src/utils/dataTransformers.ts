@@ -1,6 +1,28 @@
 import type { Location, Metrics, DetailedMetrics, LocationWithMetrics } from '../types/api';
 
 /**
+ * Converts a date string to a standardized timezone (IST/Kolkata)
+ * Returns null if dateString is null or invalid
+ */
+export const convertToStandardTimezone = (dateString: string | null): Date | null => {
+  if (!dateString) return null;
+  
+  try {
+    // Convert to IST (+5:30)
+    const date = new Date(dateString);
+    const convertedDate = new Date(date);
+    // Adjust for timezone offset
+    convertedDate.setHours(convertedDate.getHours() - 5);
+    convertedDate.setMinutes(convertedDate.getMinutes() - 30);
+    
+    return convertedDate;
+  } catch (error) {
+    console.error("Error converting date:", error);
+    return null;
+  }
+};
+
+/**
  * Transforms API location and metrics data into the format used by the dashboard
  */
 export const transformLocationData = (
@@ -13,8 +35,8 @@ export const transformLocationData = (
     liveOccupancyChange: 0,
     turnoverTime: 0,
     turnoverTimeChange: 0,
-    lastUpdated: new Date().toISOString(),
-    updateInterval: 60,
+    lastUpdated: null,
+    updateInterval: 1,
     todayAvgHourlyOccupancy: Array(24).fill(0),
   };
 
@@ -43,15 +65,24 @@ export const transformLocationData = (
   const hourlyTrend = 'todayAvgHourlyOccupancy' in data 
     ? data.todayAvgHourlyOccupancy
     : Array(24).fill(0); // Empty 24-hour array if no detailed data
-
   // Convert now time to +5:30 GMT (India Standard Time) to match the lastUpdated time
   const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-  // Converting lastUpdated to -5:30 GMT (India Standard Time) to match the now time
-  const lastUpdatedDate = new Date(data.lastUpdated);
-  lastUpdatedDate.setHours(lastUpdatedDate.getHours() - 5);
-  lastUpdatedDate.setMinutes(lastUpdatedDate.getMinutes() - 30);
+  
+  // Handle potentially null lastUpdated date
+  console.log("Last updated date:", data.lastUpdated);
+  let isLive = false;
+  let lastUpdatedDate: Date | null ; // Default to epoch if no data
+  
+  if (data.lastUpdated !== null) {
+    // Converting lastUpdated to -5:30 GMT (India Standard Time) to match the now time
+    lastUpdatedDate = convertToStandardTimezone(data.lastUpdated) || new Date(0);
     // Decide if the location is live if metrics lastupdate is not older than 5 times of the update interval
-  const isLive = (now.getTime() - lastUpdatedDate.getTime()) < (data.updateInterval * 5 * 60 * 1000);
+    isLive = (now.getTime() - lastUpdatedDate.getTime()) < (data.updateInterval * 5 * 60 * 1000);
+  } else {
+    // If lastUpdated is null, set to epoch and not live
+    lastUpdatedDate = data.lastUpdated;
+    isLive = false;
+  }
 
   return {
     id: location.locationId,
@@ -82,4 +113,17 @@ export const combineLocationsWithMetrics = (
     const metrics = metricsArray.find(m => m.locationId === location.locationId);
     return transformLocationData(location, metrics);
   });
+};
+
+/**
+ * Formats the last updated date for display
+ * Returns "Never" if the date is null or invalid
+ */
+export const formatLastUpdated = (dateString: string | null): string => {
+  if (!dateString) return "Never";
+  
+  const convertedDate = convertToStandardTimezone(dateString);
+  if (!convertedDate) return "Never";
+  
+  return convertedDate.toISOString();
 };

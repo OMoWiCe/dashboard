@@ -38,6 +38,6 @@ export interface LocationWithMetrics {
   waitingTimeTrend: 'up' | 'down' | 'stable';
   isLive: boolean;
   hourlyTrend: number[];
-  lastUpdated: Date;
+  lastUpdated: Date | null; // Use Date type for lastUpdated
   updateInterval: number; // Added updateInterval in minutes
 }
