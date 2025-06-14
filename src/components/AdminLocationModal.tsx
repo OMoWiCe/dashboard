@@ -191,22 +191,13 @@ const AdminLocationModal = ({
     }
   };
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  };
-
   return (
-    <div className="modal-overlay" onClick={handleOverlayClick}>
+    <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
           <h2 className="modal-title">
             {isEditing ? "Edit Location" : "Add New Location"}
           </h2>
-          <button className="modal-close-btn" onClick={onClose}>
-            <i className="fa fa-times" aria-hidden="true"></i>
-          </button>
         </div>
 
         <form className="modal-form" onSubmit={handleSubmit}>
@@ -382,7 +373,11 @@ const AdminLocationModal = ({
                   </>
                 ) : (
                   <>
-                    <i className="fa fa-check" aria-hidden="true"></i>
+                    {isEditing ? (
+                      <i className="fa fa-check" aria-hidden="true"></i>
+                    ) : (
+                      <i className="fa fa-plus" aria-hidden="true"></i>
+                    )}
                     {isEditing ? "Update" : "Add"}
                   </>
                 )}
@@ -427,6 +422,9 @@ const AdminLocationModal = ({
           </div>
         </form>
       </div>
+      <button className="modal-close-btn" onClick={onClose}>
+        <i className="fa fa-times" aria-hidden="true"></i>
+      </button>
     </div>
   );
 };

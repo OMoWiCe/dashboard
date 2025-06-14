@@ -5,7 +5,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.664);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -38,7 +38,7 @@
 @keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -51,7 +51,6 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid var(--card-border);
   background-color: var(--bg-light-gray);
   border-radius: 15px 15px 0 0;
 }
@@ -59,12 +58,12 @@
 .modal-title {
   font-size: var(--font-xl);
   font-weight: 600;
-  color: var(--text-dark);
+  color: var(--primary-color);
   margin: 0;
 }
 
 .modal-close-btn {
-  background: none;
+  background: var(--bg-light);
   border: none;
   color: var(--text-gray);
   cursor: pointer;
@@ -75,16 +74,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  right: 32%;
+  top: 12%;
+  transform: translateY(-7px) translateX(5px);
   transition: all var(--transition-fast);
 }
 
 .modal-close-btn:hover {
-  background-color: var(--bg-light);
-  color: var(--primary-color);
+  background-color: var(--danger-color);
+  color: var(--bg-light);
 }
 
 .modal-form {
-  padding: 2rem;
+  padding: 1rem 2rem 2rem;
 }
 
 .form-section {
@@ -98,8 +101,8 @@
 .section-title {
   font-size: var(--font-lg);
   font-weight: 500;
-  color: var(--text-dark);
-  margin: 0 0 1rem 0;
+  color: var(--primary-color);
+  margin: 40px 0 5px 0;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid var(--card-border);
 }
@@ -108,7 +111,6 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
-  margin-bottom: 1rem;
 }
 
 .form-group {
@@ -121,6 +123,8 @@
   font-weight: 500;
   color: var(--text-dark);
   margin-bottom: 0.5rem;
+  margin-top: 1rem;
+  margin-left: 5px;
 }
 
 .form-group input {
@@ -136,7 +140,7 @@
 .form-group input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.2);
 }
 
 .form-group input.disabled {
@@ -172,10 +176,11 @@
 /* Modal Actions */
 .modal-actions {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding-top: 1rem;
+  padding-top: 1.2rem;
   border-top: 1px solid var(--card-border);
+  margin-bottom: -10px;
 }
 
 .primary-actions {
@@ -193,10 +198,12 @@
 .delete-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  padding: 10px 1.25rem;
   border: none;
-  border-radius: 8px;
+  width: 110px;
+  border-radius: 10px;
   font-size: var(--font-sm);
   font-weight: 500;
   cursor: pointer;
@@ -226,6 +233,7 @@
 .delete-btn {
   background-color: var(--danger-color);
   color: white;
+  margin-left: 0.75rem;
 }
 
 .delete-btn:hover {
