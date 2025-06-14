@@ -21,6 +21,7 @@ interface NavbarProps {
   onLocationSelect: (locationId: string) => void;
   selectedLocationId: string | null;
   onResetSearch: () => void;
+  isAdminPage?: boolean; // New prop to differentiate admin page
 }
 
 const Navbar = ({
@@ -32,6 +33,7 @@ const Navbar = ({
   onLocationSelect,
   selectedLocationId,
   onResetSearch,
+  isAdminPage = false, // Default to false for backwards compatibility
 }: NavbarProps) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const [autoRefreshInterval, setAutoRefreshInterval] = useState<number | null>(
@@ -180,9 +182,14 @@ const Navbar = ({
     setShowDropdown(false);
     setMobileMenuOpen(false);
   };
-
   const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchValue(e.target.value);
+    const newValue = e.target.value;
+    setSearchValue(newValue);
+
+    // For admin page, immediately send search term to parent component
+    if (isAdminPage) {
+      onSearch(newValue);
+    }
   };
 
   const handleClearSearch = () => {
@@ -347,7 +354,7 @@ const Navbar = ({
               >
                 <i className="fa fa-times" aria-hidden="true"></i>
               </button>
-            </div>
+            </div>{" "}
             <a
               href="/"
               className="mobile-menu-item"
@@ -358,6 +365,17 @@ const Navbar = ({
             >
               <i className="fa fa-tachometer" aria-hidden="true"></i>
               Dashboard
+            </a>
+            <a
+              href="/admin"
+              className="mobile-menu-item"
+              onClick={(e) => {
+                e.preventDefault();
+                handleMobileLinkClick(() => (window.location.href = "/admin"));
+              }}
+            >
+              <i className="fa fa-cog" aria-hidden="true"></i>
+              Admin
             </a>
             <a
               href="https://github.com/OMoWiCe/azfunc-api"
@@ -380,7 +398,6 @@ const Navbar = ({
               <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
               Disclaimer
             </a>
-
             <div className="mobile-menu-section">
               <div className="mobile-menu-section-title">
                 Auto Refresh Settings
@@ -535,9 +552,12 @@ const Navbar = ({
               alt="Logo"
               className="navbar-logo-img"
             />
-          </a>
+          </a>{" "}
           <a href="/" className="navbar-link">
             Dashboard
+          </a>
+          <a href="/admin" className="navbar-link">
+            Admin
           </a>
           <a
             href="https://github.com/OMoWiCe/azfunc-api"

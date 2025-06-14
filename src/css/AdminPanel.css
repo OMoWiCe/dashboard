@@ -1,0 +1,345 @@
+/* Admin Panel Styles */
+.admin-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 99vh;
+  background-color: var(--bg-off-white);
+  font-family: "Roboto", sans-serif;
+  color: var(--text-dark);
+  width: 100%;
+  padding-top: 1vh;
+  margin: 0 auto;
+}
+
+.admin-content {
+  flex: 1;
+  padding: 80px 20px 80px;
+  width: 80vw;
+  margin: 50px auto 0;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+  padding: 0 2rem;
+}
+
+.admin-title {
+  font-size: var(--font-3xl);
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.add-location-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 10px;
+  font-size: var(--font-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.add-location-btn {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.add-location-btn:hover {
+  background-color: var(--btn-hover);
+}
+
+/* Table Styles - Updated with rounded corners and spacing */
+
+.locations-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 7px;
+  font-size: var(--font-sm);
+}
+
+.locations-table thead {
+  background-color: transparent;
+}
+
+.locations-table thead tr {
+  background-color: var(--bg-light);
+  border-radius: 8px;
+}
+
+.locations-table th {
+  padding: 15px 1.25rem 20px;
+  text-align: center;
+  font-weight: 600;
+  font-size: var(--font-base);
+  color: var(--text-dark);
+  cursor: pointer;
+  user-select: none;
+  background-color: var(--bg-off-white);
+  transition: 0.3s ease;
+}
+
+.locations-table th:hover {
+  color: var(--primary-color);
+}
+
+.locations-table th i {
+  margin-left: 0.5rem;
+  color: var(--text-light-gray);
+}
+.locations-table th:hover i {
+  color: var(--primary-color);
+}
+
+.locations-table tbody tr {
+  background-color: var(--bg-light);
+  border-radius: 20px;
+  transition: all var(--transition-fast);
+  box-shadow: 0 0px 7px rgba(0, 0, 0, 0.05);
+}
+
+.table-row {
+  cursor: pointer;
+}
+
+.table-row:hover {
+  outline: 1px solid var(--primary-color);
+}
+
+.locations-table td {
+  padding: 15px 1.25rem;
+  color: var(--text-gray);
+  vertical-align: middle;
+  background-color: inherit;
+}
+
+.locations-table td:first-child {
+  border-radius: 20px 0 0 20px;
+  text-align: left;
+}
+
+.locations-table td:last-child {
+  border-radius: 0 20px 20px 0;
+}
+
+.locations-table td:only-child {
+  border-radius: 20px;
+}
+
+/* Center specific columns */
+.locations-table th:nth-child(4), /* Status column header */
+.locations-table th:nth-child(5), /* Update Interval column header */
+.locations-table td:nth-child(4), /* Status column data */
+.locations-table td:nth-child(5) {
+  /* Update Interval column data */
+  text-align: center;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 15px;
+  border-radius: 9px;
+  width: 80px;
+  font-size: var(--font-xs);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-online {
+  background-color: var(--success-color);
+  color: var(--text-white);
+}
+
+.status-offline {
+  background-color: var(--danger-color);
+  color: var(--text-white);
+}
+
+/* Loading States */
+.loading-container {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.error-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-light-gray);
+  font-size: var(--font-lg);
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.error-message i {
+  font-size: 2rem;
+  color: var(--danger-color);
+}
+
+.error-message .refresh-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: var(--font-sm);
+  transition: background-color var(--transition-fast);
+}
+
+.error-message .refresh-btn:hover {
+  background-color: var(--btn-hover);
+}
+
+.no-results-message {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--text-light-gray);
+  font-size: var(--font-lg);
+  background-color: rgba(255, 255, 255, 0.5);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px var(--card-shadow);
+  margin: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.no-results-message i {
+  font-size: 2rem;
+  color: var(--text-light-gray);
+}
+
+/* Refreshing Animation */
+.admin-panel.refreshing .locations-table-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-panel.refreshing .locations-table-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 1.5s infinite;
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .locations-table {
+    font-size: var(--font-xs);
+  }
+
+  .locations-table th,
+  .locations-table td {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-content {
+    padding: 130px 15px 50px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+    margin-bottom: 1.5rem;
+  }
+
+  .admin-title {
+    font-size: var(--font-2xl);
+    text-align: center;
+  }
+
+  .admin-actions {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .locations-table-container {
+    overflow-x: auto;
+  }
+
+  .locations-table {
+    min-width: 700px;
+    border-spacing: 0 0.25rem;
+  }
+
+  .locations-table th,
+  .locations-table td {
+    padding: 0.5rem 0.75rem;
+    font-size: var(--font-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-content {
+    padding: 60px 40px 50px;
+  }
+
+  .admin-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .add-location-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .locations-table {
+    min-width: 600px;
+  }
+
+  .locations-table th,
+  .locations-table td {
+    padding: 0.5rem;
+    font-size: calc(var(--font-xs) - 1px);
+  }
+
+  .status-badge {
+    padding: 0.125rem 0.5rem;
+    font-size: calc(var(--font-xs) - 2px);
+  }
+}
