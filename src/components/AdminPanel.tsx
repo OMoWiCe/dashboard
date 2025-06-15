@@ -4,6 +4,7 @@ import "../css/theme.css";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import AdminLocationModal from "./AdminLocationModal";
+import AdminLogin from "./AdminLogin";
 import LoadingSkeleton from "./LoadingSkeleton";
 import Disclaimer from "./Disclaimer";
 import { adminApi } from "../utils/adminApi";
@@ -24,6 +25,11 @@ interface ExtendedLocation extends Location {
 import { ToastProvider } from "../contexts/ToastContext";
 
 function AdminPanel() {
+  // Authentication state - check localStorage on initialization
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem("adminAuthenticated") === "true";
+  });
+
   // State management
   const [locations, setLocations] = useState<LocationWithStatus[]>([]);
   const [filteredLocations, setFilteredLocations] = useState<
@@ -41,53 +47,25 @@ function AdminPanel() {
   const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [showDisclaimer, setShowDisclaimer] = useState<boolean>(false);
-  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null);
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null); // Handle successful login
+  const handleLoginSuccess = () => {
+    setIsAuthenticated(true);
+    localStorage.setItem("adminAuthenticated", "true");
+  };
 
-  // Fetch all locations on initial load
-  useEffect(() => {
-    fetchLocations();
-  }, []);
+  // Handle logout
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    localStorage.removeItem("adminAuthenticated");
+  };
 
-  // Filter and sort locations when search term or sort options change
-  useEffect(() => {
-    let filtered = locations;
-
-    // Apply search filter
-    if (searchTerm.trim()) {
-      filtered = locations.filter(
-        (location) =>
-          location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          location.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          location.locationId.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    // Apply sorting
-    filtered = [...filtered].sort((a, b) => {
-      const aValue = a[sortField];
-      const bValue = b[sortField];
-
-      if (typeof aValue === "string" && typeof bValue === "string") {
-        const comparison = aValue.localeCompare(bValue);
-        return sortDirection === "asc" ? comparison : -comparison;
-      }
-
-      if (aValue instanceof Date && bValue instanceof Date) {
-        const comparison = aValue.getTime() - bValue.getTime();
-        return sortDirection === "asc" ? comparison : -comparison;
-      }
-
-      return 0;
-    });
-
-    setFilteredLocations(filtered);
-  }, [locations, searchTerm, sortField, sortDirection]);
   const fetchLocations = async () => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const locationsData = await adminApi.getAllLocations(); // Transform data to include status and formatting
+      const locationsData = await adminApi.getAllLocations();
+      // Transform data to include status and formatting
       const locationsWithStatus: LocationWithStatus[] = locationsData.map(
         (location: ExtendedLocation) => {
           // Determine status based on lastMetricUpdated
@@ -134,8 +112,50 @@ function AdminPanel() {
     await fetchLocations();
     setIsRefreshing(false);
   };
-  // This handles search term changes immediately without requiring Enter key
+
+  // Fetch all locations on initial load
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchLocations();
+    }
+  }, [isAuthenticated]);
+
+  // Filter and sort locations when search term or sort options change
+  useEffect(() => {
+    let filtered = locations;
+
+    // Apply search filter
+    if (searchTerm.trim()) {
+      filtered = locations.filter(
+        (location) =>
+          location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          location.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          location.locationId.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Apply sorting
+    filtered = [...filtered].sort((a, b) => {
+      const aValue = a[sortField];
+      const bValue = b[sortField];
+
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        const comparison = aValue.localeCompare(bValue);
+        return sortDirection === "asc" ? comparison : -comparison;
+      }
+
+      if (aValue instanceof Date && bValue instanceof Date) {
+        const comparison = aValue.getTime() - bValue.getTime();
+        return sortDirection === "asc" ? comparison : -comparison;
+      }
+
+      return 0;
+    });
+
+    setFilteredLocations(filtered);
+  }, [locations, searchTerm, sortField, sortDirection]); // This handles search term changes immediately without requiring Enter key
   const handleSearch = (term: string) => {
+    if (!isAuthenticated) return; // Prevent search when not authenticated
     setSearchTerm(term);
   };
 
@@ -248,137 +268,155 @@ function AdminPanel() {
           onResetSearch={() => setSearchTerm("")}
           isAdminPage={true}
         />
-        <div className="admin-content">
-          <div className="admin-header">
-            <h1 className="admin-title">Admin Panel</h1>
-            <div className="admin-actions">
-              <button className="add-location-btn" onClick={handleAddLocation}>
-                <i className="fa fa-plus" aria-hidden="true"></i>
-                Add Location
-              </button>
-            </div>
-          </div>{" "}
-          {isLoading ? (
-            <div
-              className="loading-container-admin"
-              style={{ width: "100%", overflowX: "hidden" }}
-            >
-              {renderSkeletons()}
-            </div>
-          ) : error ? (
-            <div className="error-message">
-              <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
-              <div>{error}</div>
-              <button onClick={refreshData} className="refresh-btn">
-                Try Again
-              </button>
-            </div>
-          ) : (
-            <div className="locations-table-container">
-              {" "}
-              {filteredLocations.length !== 0 && (
-                <table className="locations-table" style={{ width: "100%" }}>
-                  <thead>
-                    <tr>
-                      <th
-                        style={{ width: "10%" }}
-                        onClick={() => handleSort("locationId")}
-                      >
-                        ID{" "}
-                        <i
-                          className={`fa ${getSortIcon("locationId")}`}
-                          aria-hidden="true"
-                        ></i>
-                      </th>
-                      <th
-                        style={{ width: "23%" }}
-                        onClick={() => handleSort("name")}
-                      >
-                        Name{" "}
-                        <i
-                          className={`fa ${getSortIcon("name")}`}
-                          aria-hidden="true"
-                        ></i>
-                      </th>
-                      <th
-                        style={{ width: "32%" }}
-                        onClick={() => handleSort("address")}
-                      >
-                        Address{" "}
-                        <i
-                          className={`fa ${getSortIcon("address")}`}
-                          aria-hidden="true"
-                        ></i>
-                      </th>
-                      <th
-                        style={{ width: "8%" }}
-                        onClick={() => handleSort("status")}
-                      >
-                        Status{" "}
-                        <i
-                          className={`fa ${getSortIcon("status")}`}
-                          aria-hidden="true"
-                        ></i>
-                      </th>
-                      <th
-                        style={{ width: "12%" }}
-                        onClick={() => handleSort("updateInterval")}
-                      >
-                        Update Interval{" "}
-                        <i
-                          className={`fa ${getSortIcon("updateInterval")}`}
-                          aria-hidden="true"
-                        ></i>
-                      </th>
-                      <th
-                        style={{ width: "15%" }}
-                        onClick={() => handleSort("lastActive")}
-                      >
-                        Last Updated{" "}
-                        <i
-                          className={`fa ${getSortIcon("lastActive")}`}
-                          aria-hidden="true"
-                        ></i>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLocations.map((location) => (
-                      <tr
-                        key={location.locationId}
-                        onClick={() => handleRowClick(location)}
-                        className="table-row"
-                      >
-                        <td>{location.locationId}</td>
-                        <td>{location.name}</td>
-                        <td>{location.address}</td>
-                        <td>
-                          <span
-                            className={`status-badge ${
-                              location.status === "online"
-                                ? "status-online"
-                                : "status-offline"
-                            }`}
-                          >
-                            {location.status}
-                          </span>
-                        </td>
-                        <td>{location.updateInterval} min</td>
-                        <td>{formatLastActive(location.lastActive)}</td>
+
+        {!isAuthenticated ? (
+          <AdminLogin onLoginSuccess={handleLoginSuccess} />
+        ) : (
+          <div className="admin-content">
+            {" "}
+            <div className="admin-header">
+              <h1 className="admin-title">Admin Panel</h1>
+              <div className="admin-actions">
+                <button
+                  className="add-location-btn"
+                  onClick={handleAddLocation}
+                >
+                  <i className="fa fa-plus" aria-hidden="true"></i>
+                  Add Location
+                </button>
+                <button
+                  className="logout-btn"
+                  onClick={handleLogout}
+                  title="Logout"
+                >
+                  <i className="fa fa-sign-out" aria-hidden="true"></i>
+                  Logout
+                </button>
+              </div>
+            </div>{" "}
+            {isLoading ? (
+              <div
+                className="loading-container-admin"
+                style={{ width: "100%", overflowX: "hidden" }}
+              >
+                {renderSkeletons()}
+              </div>
+            ) : error ? (
+              <div className="error-message">
+                <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
+                <div>{error}</div>
+                <button onClick={refreshData} className="refresh-btn">
+                  Try Again
+                </button>
+              </div>
+            ) : (
+              <div className="locations-table-container">
+                {" "}
+                {filteredLocations.length !== 0 && (
+                  <table className="locations-table" style={{ width: "100%" }}>
+                    <thead>
+                      <tr>
+                        <th
+                          style={{ width: "10%" }}
+                          onClick={() => handleSort("locationId")}
+                        >
+                          ID{" "}
+                          <i
+                            className={`fa ${getSortIcon("locationId")}`}
+                            aria-hidden="true"
+                          ></i>
+                        </th>
+                        <th
+                          style={{ width: "23%" }}
+                          onClick={() => handleSort("name")}
+                        >
+                          Name{" "}
+                          <i
+                            className={`fa ${getSortIcon("name")}`}
+                            aria-hidden="true"
+                          ></i>
+                        </th>
+                        <th
+                          style={{ width: "32%" }}
+                          onClick={() => handleSort("address")}
+                        >
+                          Address{" "}
+                          <i
+                            className={`fa ${getSortIcon("address")}`}
+                            aria-hidden="true"
+                          ></i>
+                        </th>
+                        <th
+                          style={{ width: "8%" }}
+                          onClick={() => handleSort("status")}
+                        >
+                          Status{" "}
+                          <i
+                            className={`fa ${getSortIcon("status")}`}
+                            aria-hidden="true"
+                          ></i>
+                        </th>
+                        <th
+                          style={{ width: "12%" }}
+                          onClick={() => handleSort("updateInterval")}
+                        >
+                          Update Interval{" "}
+                          <i
+                            className={`fa ${getSortIcon("updateInterval")}`}
+                            aria-hidden="true"
+                          ></i>
+                        </th>
+                        <th
+                          style={{ width: "15%" }}
+                          onClick={() => handleSort("lastActive")}
+                        >
+                          Last Updated{" "}
+                          <i
+                            className={`fa ${getSortIcon("lastActive")}`}
+                            aria-hidden="true"
+                          ></i>
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              )}
-              {filteredLocations.length === 0 && !isLoading && (
-                <div className="no-results-message">
-                  <i className="fa fa-search-minus" aria-hidden="true"></i>
-                  <div>No locations found!</div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+                    </thead>
+                    <tbody>
+                      {filteredLocations.map((location) => (
+                        <tr
+                          key={location.locationId}
+                          onClick={() => handleRowClick(location)}
+                          className="table-row"
+                        >
+                          <td>{location.locationId}</td>
+                          <td>{location.name}</td>
+                          <td>{location.address}</td>
+                          <td>
+                            <span
+                              className={`status-badge ${
+                                location.status === "online"
+                                  ? "status-online"
+                                  : "status-offline"
+                              }`}
+                            >
+                              {location.status}
+                            </span>
+                          </td>
+                          <td>{location.updateInterval} min</td>
+                          <td>{formatLastActive(location.lastActive)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+                {filteredLocations.length === 0 && !isLoading && (
+                  <div className="no-results-message">
+                    <i className="fa fa-search-minus" aria-hidden="true"></i>
+                    <div>No locations found!</div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         <Footer lastRefreshTime={lastRefreshTime} />
         {showModal && (
           <AdminLocationModal

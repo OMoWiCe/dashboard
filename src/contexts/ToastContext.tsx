@@ -1,88 +1,82 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import AdminToast, { ToastType } from "../components/AdminToast";
 
-interface ToastContextProps {
+interface ToastContextType {
   showToast: (message: string, type: ToastType, duration?: number) => void;
-  showConfirmation: (
-    message: string,
-    onConfirm: () => void,
-    onCancel?: () => void
-  ) => void;
-  hideToast: () => void;
+  showConfirmation: (message: string, onConfirm: () => void) => void;
 }
 
-const ToastContext = createContext<ToastContextProps | undefined>(undefined);
+const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 interface ToastProviderProps {
   children: ReactNode;
 }
 
 interface ToastState {
+  id: string;
   message: string;
   type: ToastType;
   duration?: number;
-  visible: boolean;
+  showConfirmation?: boolean;
   onConfirm?: () => void;
   onCancel?: () => void;
-  showConfirmation: boolean;
 }
 
 export const ToastProvider: React.FC<ToastProviderProps> = ({ children }) => {
-  const [toast, setToast] = useState<ToastState>({
-    message: "",
-    type: "info",
-    visible: false,
-    showConfirmation: false,
-  });
+  const [toasts, setToasts] = useState<ToastState[]>([]);
 
-  const showToast = (message: string, type: ToastType, duration = 7) => {
-    setToast({
+  const showToast = (message: string, type: ToastType, duration?: number) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    const newToast: ToastState = {
+      id,
       message,
       type,
       duration,
-      visible: true,
-      showConfirmation: false,
-    });
+    };
+
+    setToasts((prev) => [...prev, newToast]);
   };
 
-  const showConfirmation = (
-    message: string,
-    onConfirm: () => void,
-    onCancel?: () => void
-  ) => {
-    setToast({
+  const showConfirmation = (message: string, onConfirm: () => void) => {
+    const id = Math.random().toString(36).substr(2, 9);
+    const newToast: ToastState = {
+      id,
       message,
       type: "confirm",
-      visible: true,
-      onConfirm,
-      onCancel: onCancel || hideToast,
       showConfirmation: true,
-    });
+      onConfirm,
+      onCancel: () => removeToast(id),
+    };
+
+    setToasts((prev) => [...prev, newToast]);
   };
 
-  const hideToast = () => {
-    setToast((prev) => ({ ...prev, visible: false }));
+  const removeToast = (id: string) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
   };
 
   return (
-    <ToastContext.Provider value={{ showToast, showConfirmation, hideToast }}>
+    <ToastContext.Provider value={{ showToast, showConfirmation }}>
       {children}
-      {toast.visible && (
-        <AdminToast
-          message={toast.message}
-          type={toast.type}
-          duration={toast.duration}
-          onClose={hideToast}
-          onConfirm={toast.onConfirm}
-          onCancel={toast.onCancel}
-          showConfirmation={toast.showConfirmation}
-        />
-      )}
+      <div className="toast-container">
+        {toasts.map((toast) => (
+          <AdminToast
+            key={toast.id}
+            message={toast.message}
+            type={toast.type}
+            duration={toast.duration}
+            onClose={() => removeToast(toast.id)}
+            onConfirm={toast.onConfirm}
+            onCancel={toast.onCancel}
+            showConfirmation={toast.showConfirmation}
+          />
+        ))}
+      </div>
     </ToastContext.Provider>
   );
 };
 
-export const useToast = (): ToastContextProps => {
+export const useToast = (): ToastContextType => {
   const context = useContext(ToastContext);
   if (context === undefined) {
     throw new Error("useToast must be used within a ToastProvider");

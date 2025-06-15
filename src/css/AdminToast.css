@@ -1,6 +1,6 @@
 .admin-toast {
   position: fixed;
-  top: 20px;
+  top: 100px;
   right: -350px;
   max-width: 500px;
   min-width: 350px;
@@ -143,4 +143,18 @@
 
 .admin-toast.confirm {
   border-left: 4px solid #f39c12;
+}
+
+/* Toast container */
+.toast-container {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.toast-container .admin-toast {
+  pointer-events: all;
+  margin-bottom: 10px;
 }
