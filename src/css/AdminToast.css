@@ -1,6 +1,6 @@
 .admin-toast {
   position: fixed;
-  top: 100px;
+  bottom: 15px;
   right: -350px;
   max-width: 500px;
   min-width: 350px;

@@ -73,7 +73,7 @@ const AdminLocationModal = ({
           avgSimsPerPerson: 1.2,
           wifiUsageRatio: 0.7,
           cellularUsageRatio: 0.3,
-          updateInterval: 60,
+          updateInterval: 1,
         },
       });
     }
@@ -189,7 +189,7 @@ const AdminLocationModal = ({
         setIsLoading(true);
         try {
           await adminApi.deleteLocation(location.locationId);
-          showToast(`Location "${location.name}" has been deleted`, "info");
+          showToast(`Location "${location.name}" has been deleted`, "success");
           onDeleted();
         } catch (err) {
           console.error("Error deleting location:", err);

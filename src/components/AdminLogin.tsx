@@ -54,6 +54,10 @@ const AdminLogin = ({ onLoginSuccess }: AdminLoginProps) => {
         formData.username === envUsername &&
         enteredPasswordHash === envPasswordHash
       ) {
+        showToast(
+          "Welcome back! You have been successfully authenticated.",
+          "success"
+        );
         onLoginSuccess();
       } else {
         showToast("Invalid username or password. Please try again.", "error");
