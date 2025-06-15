@@ -8,6 +8,7 @@ import LocationCard from "./LocationCard";
 import LoadingSkeleton from "./LoadingSkeleton";
 import Disclaimer from "./Disclaimer";
 import Footer from "./Footer";
+import AdminPanel from "./AdminPanel";
 import { api } from "../utils/api";
 import type {
   Location,
@@ -27,6 +28,14 @@ import {
 } from "../utils/urlParams";
 
 function App() {
+  // Check if we're on the admin route
+  const isAdminRoute = window.location.pathname === "/admin";
+
+  // If admin route, render AdminPanel
+  if (isAdminRoute) {
+    return <AdminPanel />;
+  }
+
   // State management for locations and metrics
   const [allLocations, setAllLocations] = useState<Location[]>([]);
   const [allMetrics, setAllMetrics] = useState<Metrics[]>([]);

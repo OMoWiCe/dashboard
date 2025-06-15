@@ -50,7 +50,7 @@ const LocationCard = ({
 
   // Format the last updated time
   const formatLastUpdated = () => {
-    if (!lastUpdated) return "No update info";
+    if (lastUpdated == null) return "Never";
 
     const now = new Date();
     const diffInMinutes = Math.floor(

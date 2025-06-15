@@ -46,3 +46,16 @@ export const updateUrlForLocation = (locationId: string | null) => {
     window.history.pushState({}, '', url);
   }
 };
+
+// Admin route utilities
+export const navigateToAdmin = () => {
+  window.location.href = '/admin';
+};
+
+export const navigateToDashboard = () => {
+  window.location.href = '/';
+};
+
+export const isAdminRoute = () => {
+  return window.location.pathname === '/admin';
+};
