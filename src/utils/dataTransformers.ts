@@ -69,7 +69,6 @@ export const transformLocationData = (
   const now = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
   
   // Handle potentially null lastUpdated date
-  console.log("Last updated date:", data.lastUpdated);
   let isLive = false;
   let lastUpdatedDate: Date | null ; // Default to epoch if no data
   

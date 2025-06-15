@@ -90,7 +90,6 @@ export const adminApi = {
 
   // Add a new location
   addLocation: (locationData: LocationCreateRequest) => {
-    console.log('Adding new location:', locationData);
     return fetchWithAdminAuth('/locations/add', {
       method: 'POST',
       body: JSON.stringify(locationData),
@@ -110,12 +109,5 @@ export const adminApi = {
     return fetchWithAdminAuth(`/locations/remove/${locationId}`, {
       method: 'DELETE',
     });
-  },
-
-  // Debug function to check admin API key
-  verifyAdminApiKey: () => {
-    const hasApiKey = !!getAdminApiKey();
-    console.log('Admin API Key configured:', hasApiKey);
-    return { success: true, message: 'Check console for Admin API key details' };
   },
 };

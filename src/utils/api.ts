@@ -28,13 +28,6 @@ const getBaseUrl = () => {
   return isDevelopment() ? DEV_PROXY_URL : API_BASE_URL;
 };
 
-// Debug function to verify API key is being set correctly
-const debugApiKeyHeaders = () => {
-  const hasApiKey = !!getApiKey();
-  console.log('API Key configured:', hasApiKey);
-  // No sensitive info logged for security
-};
-
 // Generic fetch function with API key authentication for Azure API Management
 const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
   try {
@@ -91,12 +84,6 @@ const fetchWithAuth = async (endpoint: string, options: RequestInit = {}) => {
 
 // API endpoints
 export const api = {
-  // Debug function to check API key
-  verifyApiKey: () => {
-    debugApiKeyHeaders();
-    return { success: true, message: 'Check console for API key details' };
-  },
-  
   // Get all locations
   getAllLocations: () => {
     return fetchWithAuth('/locations');
