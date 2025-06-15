@@ -10,6 +10,17 @@ import { adminApi } from "../utils/adminApi";
 import { convertToStandardTimezone } from "../utils/dataTransformers";
 import type { Location } from "../types/api";
 import type { LocationWithStatus } from "../types/admin";
+
+// Extend the Location type to include the fields from the API response
+interface ExtendedLocation extends Location {
+  lastMetricUpdated?: string;
+  updateInterval?: number;
+  lastRecordUpdated?: string;
+  avgDevicesPerPerson?: number;
+  avgSimsPerPerson?: number;
+  wifiUsageRatio?: number;
+  cellularUsageRatio?: number;
+}
 import { ToastProvider } from "../contexts/ToastContext";
 
 function AdminPanel() {
@@ -76,60 +87,33 @@ function AdminPanel() {
     setError(null);
 
     try {
-      const locationsData = await adminApi.getAllLocations();
-
-      // Try to fetch metrics to determine status, but don't fail if it's not available
-      let metricsData: any[] = [];
-      try {
-        // Import the main API dynamically to avoid circular dependencies
-        const { api } = await import("../utils/api");
-        metricsData = await api.getAllMetrics();
-      } catch (metricsError) {
-        console.warn(
-          "Could not fetch metrics for status determination:",
-          metricsError
-        );
-      }
-
-      // Transform data to include status and formatting
+      const locationsData = await adminApi.getAllLocations(); // Transform data to include status and formatting
       const locationsWithStatus: LocationWithStatus[] = locationsData.map(
-        (location: Location) => {
-          // Find matching metrics to determine status
-          const metrics = metricsData.find(
-            (m: any) => m.locationId === location.locationId
-          ); // Determine status based on metrics
+        (location: ExtendedLocation) => {
+          // Determine status based on lastMetricUpdated
+          const now = new Date();
           let status: "online" | "offline" = "offline";
-          let lastActive = new Date(0); // Default to epoch if no data
-          let updateInterval = 60;
 
-          if (metrics) {
-            const now = new Date();
-            // Handle potentially null lastUpdated date
-            if (!metrics.lastUpdated) {
-              status = "offline";
-            } else {
-              const lastUpdated =
-                convertToStandardTimezone(metrics.lastUpdated) || new Date(0);
-              const diffInMinutes =
-                (now.getTime() - lastUpdated.getTime()) / 60000;
+          // Use the lastMetricUpdated field from the API response
+          const lastMetricUpdated = location.lastMetricUpdated
+            ? convertToStandardTimezone(location.lastMetricUpdated)
+            : null;
 
-              // Consider online if updated within 5 times the update interval
-              status =
-                diffInMinutes < metrics.updateInterval * 5
-                  ? "online"
-                  : "offline";
-              lastActive = lastUpdated;
-            }
-            updateInterval = metrics.updateInterval;
-          } else {
-            // Default to some reasonable defaults if no metrics available
-            status = "offline";
+          // Get update interval from the API response or use default
+          const updateInterval = location.updateInterval || 60;
+
+          if (lastMetricUpdated) {
+            const diffInMinutes =
+              (now.getTime() - lastMetricUpdated.getTime()) / 60000;
+
+            // Consider online if updated within 5 times the update interval
+            status = diffInMinutes < updateInterval * 5 ? "online" : "offline";
           }
 
           return {
             ...location,
             status,
-            lastActive,
+            lastActive: lastMetricUpdated || new Date(0),
             updateInterval,
           };
         }
@@ -210,12 +194,45 @@ function AdminPanel() {
     if (sortField !== field) return "fa-sort";
     return sortDirection === "asc" ? "fa-sort-up" : "fa-sort-down";
   };
-
-  // Render loading skeletons
+  // Render loading skeletons for the admin panel table
   const renderSkeletons = () => {
-    return Array(5)
-      .fill(0)
-      .map((_, index) => <LoadingSkeleton key={`skeleton-${index}`} />);
+    return (
+      <table className="locations-table">
+        <thead>
+          <tr>
+            <th style={{ width: "10%" }}>
+              ID <i className="fa fa-sort sort-hidden" aria-hidden="true"></i>
+            </th>
+            <th style={{ width: "23%" }}>
+              Name <i className="fa fa-sort sort-hidden" aria-hidden="true"></i>
+            </th>
+            <th style={{ width: "32%" }}>
+              Address{" "}
+              <i className="fa fa-sort sort-hidden" aria-hidden="true"></i>
+            </th>
+            <th style={{ width: "8%" }}>
+              Status{" "}
+              <i className="fa fa-sort sort-hidden" aria-hidden="true"></i>
+            </th>
+            <th style={{ width: "12%" }}>
+              Update Interval{" "}
+              <i className="fa fa-sort sort-hidden" aria-hidden="true"></i>
+            </th>
+            <th style={{ width: "15%" }}>
+              Last Updated{" "}
+              <i className="fa fa-sort sort-hidden" aria-hidden="true"></i>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {Array(5)
+            .fill(0)
+            .map((_, index) => (
+              <LoadingSkeleton key={`skeleton-${index}`} type="row" />
+            ))}
+        </tbody>
+      </table>
+    );
   };
   return (
     <ToastProvider>
@@ -240,10 +257,14 @@ function AdminPanel() {
                 Add Location
               </button>
             </div>
-          </div>
-
+          </div>{" "}
           {isLoading ? (
-            <div className="loading-container">{renderSkeletons()}</div>
+            <div
+              className="loading-container-admin"
+              style={{ width: "100%", overflowX: "hidden" }}
+            >
+              {renderSkeletons()}
+            </div>
           ) : error ? (
             <div className="error-message">
               <i className="fa fa-exclamation-circle" aria-hidden="true"></i>
@@ -254,46 +275,65 @@ function AdminPanel() {
             </div>
           ) : (
             <div className="locations-table-container">
+              {" "}
               {filteredLocations.length !== 0 && (
-                <table className="locations-table">
+                <table className="locations-table" style={{ width: "100%" }}>
                   <thead>
                     <tr>
-                      <th onClick={() => handleSort("locationId")}>
+                      <th
+                        style={{ width: "10%" }}
+                        onClick={() => handleSort("locationId")}
+                      >
                         ID{" "}
                         <i
                           className={`fa ${getSortIcon("locationId")}`}
                           aria-hidden="true"
                         ></i>
                       </th>
-                      <th onClick={() => handleSort("name")}>
+                      <th
+                        style={{ width: "23%" }}
+                        onClick={() => handleSort("name")}
+                      >
                         Name{" "}
                         <i
                           className={`fa ${getSortIcon("name")}`}
                           aria-hidden="true"
                         ></i>
                       </th>
-                      <th onClick={() => handleSort("address")}>
+                      <th
+                        style={{ width: "32%" }}
+                        onClick={() => handleSort("address")}
+                      >
                         Address{" "}
                         <i
                           className={`fa ${getSortIcon("address")}`}
                           aria-hidden="true"
                         ></i>
                       </th>
-                      <th onClick={() => handleSort("status")}>
+                      <th
+                        style={{ width: "8%" }}
+                        onClick={() => handleSort("status")}
+                      >
                         Status{" "}
                         <i
                           className={`fa ${getSortIcon("status")}`}
                           aria-hidden="true"
                         ></i>
                       </th>
-                      <th onClick={() => handleSort("updateInterval")}>
+                      <th
+                        style={{ width: "12%" }}
+                        onClick={() => handleSort("updateInterval")}
+                      >
                         Update Interval{" "}
                         <i
                           className={`fa ${getSortIcon("updateInterval")}`}
                           aria-hidden="true"
                         ></i>
                       </th>
-                      <th onClick={() => handleSort("lastActive")}>
+                      <th
+                        style={{ width: "15%" }}
+                        onClick={() => handleSort("lastActive")}
+                      >
                         Last Updated{" "}
                         <i
                           className={`fa ${getSortIcon("lastActive")}`}
@@ -330,7 +370,6 @@ function AdminPanel() {
                   </tbody>
                 </table>
               )}
-
               {filteredLocations.length === 0 && !isLoading && (
                 <div className="no-results-message">
                   <i className="fa fa-search-minus" aria-hidden="true"></i>

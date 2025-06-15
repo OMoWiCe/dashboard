@@ -172,11 +172,10 @@
 }
 
 /* Loading States */
-.loading-container {
+.loading-container-admin {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-  padding: 2rem;
 }
 
 .error-message {

@@ -27,6 +27,11 @@
   gap: 20px;
 }
 
+/* Admin panel loading container */
+.loading-container-admin {
+  width: 100%;
+}
+
 .skeleton-card::after {
   content: "";
   position: absolute;
@@ -42,6 +47,65 @@
   );
   animation: shimmer 1.5s infinite;
   transform: translateX(-100%);
+}
+
+/* Skeleton row styles for admin panel */
+.skeleton-row {
+  position: relative;
+  height: 56px;
+  width: 100%;
+  overflow: hidden;
+}
+.sort-hidden {
+  opacity: 0;
+}
+
+.skeleton-row::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 0.5),
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 1.5s infinite;
+  transform: translateX(-100%);
+}
+
+.skeleton-cell {
+  background-color: #e2e8f0;
+  border-radius: 4px;
+  height: 20px;
+  margin: 10px 0;
+}
+
+.skeleton-id {
+  width: 70%;
+}
+
+.skeleton-name {
+  width: 85%;
+}
+
+.skeleton-address {
+  width: 90%;
+}
+
+.skeleton-status {
+  width: 60%;
+}
+
+.skeleton-interval {
+  width: 50%;
+}
+
+.skeleton-last-updated {
+  width: 70%;
 }
 
 @keyframes shimmer {
@@ -81,7 +145,7 @@
   width: 80px;
   height: 60px;
   background-color: #e2e8f0;
-  border-radius: 8px;
+  border-radius: 6px;
 }
 
 /* Simple chart representation */

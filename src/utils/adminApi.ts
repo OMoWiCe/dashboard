@@ -90,6 +90,7 @@ export const adminApi = {
 
   // Add a new location
   addLocation: (locationData: LocationCreateRequest) => {
+    console.log('Adding new location:', locationData);
     return fetchWithAdminAuth('/locations/add', {
       method: 'POST',
       body: JSON.stringify(locationData),
