@@ -375,7 +375,7 @@ const Navbar = ({
               }}
             >
               <i className="fa fa-cog" aria-hidden="true"></i>
-              Admin
+              Admin Panel
             </a>
             <a
               href="https://github.com/OMoWiCe/azfunc-api"
@@ -557,7 +557,7 @@ const Navbar = ({
             Dashboard
           </a>
           <a href="/admin" className="navbar-link">
-            Admin
+            Admin Panel
           </a>
           <a
             href="https://github.com/OMoWiCe/azfunc-api"
